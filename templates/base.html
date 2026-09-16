@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Sage & Stamp Recipe Box{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site">
+    <div class="header-inner">
+        <a href="{{ url_for('home') }}" class="brand">
+            Sage <span>&amp;</span> Stamp
+            <small>AI-Assisted Recipe Box</small>
+        </a>
+        <nav class="site">
+            <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' }}">Recipes</a>
+            <a href="{{ url_for('add_recipe') }}" class="{{ 'active' if request.endpoint == 'add_recipe' }}">Add Recipe</a>
+            <a href="{{ url_for('cook_with') }}" class="{{ 'active' if request.endpoint == 'cook_with' }}">What Can I Cook?</a>
+            <a href="{{ url_for('discover') }}" class="{{ 'active' if request.endpoint == 'discover' }}">Discover</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="site">
+    © 2026 Anshul Bhilare • AI Recipe Management System
+</footer>
+</body>
+</html>

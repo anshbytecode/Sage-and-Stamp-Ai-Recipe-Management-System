@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }} — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="detail-header" style="margin-top:24px;">
+    <div>
+        <h1 class="display" style="margin-bottom:4px;">{{ recipe.title }}</h1>
+        <div class="meta-row">
+            <span class="pill">{{ recipe.cuisine }}</span>
+            <span class="pill">Prep {{ recipe.prep_time }} min</span>
+            <span class="pill">Cook {{ recipe.cook_time }} min</span>
+            <span class="pill">Serves {{ recipe.servings }}</span>
+            {% if recipe.calories %}<span class="pill">{{ recipe.calories }} kcal</span>{% endif %}
+        </div>
+        {% if recipe.cuisine_predicted %}
+            <div style="margin-top:10px;"><span class="ai-stamp herb">AI-predicted cuisine</span></div>
+        {% endif %}
+    </div>
+    <div class="btn-row">
+        <a class="btn" href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}"
+              onsubmit="return confirm('Delete this recipe permanently?');">
+            <button class="btn btn-danger" type="submit">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div>
+        <div class="card" style="padding:20px;">
+            <h3>Method</h3>
+            <div class="instructions">{{ recipe.instructions }}</div>
+        </div>
+    </div>
+    <div>
+        <div class="card" style="padding:20px;">
+            <h3>Ingredients</h3>
+            <ul class="ingredient-list">
+                {% for ing in recipe.ingredients.split(',') %}
+                    <li>{{ ing.strip() }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card" style="padding:20px;margin-top:20px;">
+            <h3>You might also like</h3>
+            <p class="helper" style="margin-top:-4px;">Ranked by an on-device TF‑IDF similarity model comparing ingredients &amp; method.</p>
+            {% if similar %}
+                {% for r, score in similar %}
+                <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="similar-item" style="display:flex;">
+                    <span>{{ r.title }}</span>
+                    <span class="ai-stamp">{{ score }}%</span>
+                </a>
+                {% endfor %}
+            {% else %}
+                <p class="helper">Not enough overlapping recipes yet to suggest similar dishes.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

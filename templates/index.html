@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Recipes — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <h1 class="display">The Recipe Box</h1>
+    <p class="lead">{{ total }} recipes on file. Search below — the engine ranks results by
+        meaning (ingredients &amp; method), not just keyword matches.</p>
+    <form class="search-box" method="get" action="{{ url_for('home') }}">
+        <input type="text" name="q" placeholder="e.g. spicy chicken dinner, creamy pasta..." value="{{ query }}">
+        <button class="btn btn-primary" type="submit">Smart Search</button>
+        {% if query %}<a class="btn" href="{{ url_for('home') }}">Clear</a>{% endif %}
+    </form>
+</div>
+
+{% if not recipes %}
+    <p style="margin-top:30px;color:var(--ink-soft);">
+        {% if query %}No recipes matched "{{ query }}". Try different words.{% else %}No recipes yet — <a href="{{ url_for('add_recipe') }}" style="color:var(--spice);font-weight:600;">add your first one</a>.{% endif %}
+    </p>
+{% endif %}
+
+<div class="recipe-grid">
+    {% for r in recipes %}
+    <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="card recipe-card">
+        <h3>{{ r.title }}</h3>
+        <div class="meta-row">
+            <span class="pill">{{ r.cuisine }}</span>
+            <span class="pill">{{ r.prep_time + r.cook_time }} min</span>
+            {% if r.calories %}<span class="pill">{{ r.calories }} kcal</span>{% endif %}
+        </div>
+        <div class="ingredients-preview">{{ r.ingredients }}</div>
+        {% if query and r.id in scores %}
+            <span class="ai-stamp">match {{ scores[r.id] }}%</span>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

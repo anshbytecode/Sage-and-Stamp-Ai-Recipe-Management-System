@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Discover — Sage & Stamp{% endblock %}
+{% block content %}
+<h1 class="display" style="margin-top:24px;">Discover Flavor Families</h1>
+<p class="lead">A KMeans clustering model groups your entire collection by ingredient &amp;
+    method similarity — no manual categories required. Groups relabel themselves as your
+    collection grows.</p>
+
+{% if not clusters %}
+    <p class="helper" style="margin-top:20px;">Add at least 4 recipes to unlock automatic clustering.</p>
+{% endif %}
+
+{% for cid, data in clusters.items() %}
+<div class="cluster-block">
+    <div class="cluster-title">
+        <h2 style="margin:0;">{{ data.label }}</h2>
+        <span class="ai-stamp herb">{{ data.recipes|length }} recipes</span>
+    </div>
+    <div class="recipe-grid">
+        {% for r in data.recipes %}
+        <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="card recipe-card">
+            <h3>{{ r.title }}</h3>
+            <div class="meta-row">
+                <span class="pill">{{ r.cuisine }}</span>
+                <span class="pill">{{ r.prep_time + r.cook_time }} min</span>
+            </div>
+            <div class="ingredients-preview">{{ r.ingredients }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

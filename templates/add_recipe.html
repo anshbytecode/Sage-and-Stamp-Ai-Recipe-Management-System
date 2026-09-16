@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if recipe else 'Add' }} Recipe — Sage & Stamp{% endblock %}
+{% block content %}
+<h1 class="display" style="margin-top:24px;">{{ 'Edit Recipe' if recipe else 'Add a New Recipe' }}</h1>
+<p class="helper" style="font-size:13.5px;">Leave "Cuisine" blank and the Naive Bayes classifier will
+    guess it from the ingredient list once you have a few labeled recipes on file.</p>
+
+<form method="post" class="card" style="padding:24px;margin-top:16px;">
+    <label>Title</label>
+    <input type="text" name="title" required value="{{ recipe.title if recipe else '' }}">
+
+    <div class="form-grid">
+        <div>
+            <label>Cuisine <span class="helper">(optional — AI will guess)</span></label>
+            <input type="text" name="cuisine" placeholder="e.g. Italian" value="{{ recipe.cuisine if recipe and not recipe.cuisine_predicted else '' }}">
+        </div>
+        <div>
+            <label>Prep time (min)</label>
+            <input type="number" name="prep_time" min="0" value="{{ recipe.prep_time if recipe else 10 }}">
+        </div>
+        <div>
+            <label>Cook time (min)</label>
+            <input type="number" name="cook_time" min="0" value="{{ recipe.cook_time if recipe else 15 }}">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div>
+            <label>Servings</label>
+            <input type="number" name="servings" min="1" value="{{ recipe.servings if recipe else 4 }}">
+        </div>
+        <div>
+            <label>Calories <span class="helper">(optional)</span></label>
+            <input type="number" name="calories" min="0" value="{{ recipe.calories if recipe else '' }}">
+        </div>
+        <div>
+            <label>Tags <span class="helper">(comma separated)</span></label>
+            <input type="text" name="tags" placeholder="dinner, quick, vegetarian" value="{{ recipe.tags if recipe else '' }}">
+        </div>
+    </div>
+
+    <label>Ingredients <span class="helper">(comma separated — this is what the ML models read)</span></label>
+    <textarea name="ingredients" required placeholder="chicken breast, garlic, olive oil, lemon">{{ recipe.ingredients if recipe else '' }}</textarea>
+
+    <label>Instructions</label>
+    <textarea name="instructions" required style="min-height:150px;">{{ recipe.instructions if recipe else '' }}</textarea>
+
+    <div class="btn-row">
+        <button class="btn btn-primary" type="submit">{{ 'Save Changes' if recipe else 'Add Recipe' }}</button>
+        <a class="btn" href="{{ url_for('home') }}">Cancel</a>
+    </div>
+</form>
+{% endblock %}
