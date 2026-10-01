@@ -53,6 +53,7 @@ class RecipeAI:
         self.vectorizer = None
         self.tfidf_matrix = None
         self.cuisine_model = None
+      
         self.cuisine_vectorizer = None
         self.cluster_model = None
         self.cluster_labels = None
@@ -62,6 +63,7 @@ class RecipeAI:
     def refresh(self):
         self.recipes = db.get_all_recipes()
         if not self.recipes:
+          
             self.vectorizer = None
             self.tfidf_matrix = None
             self.cuisine_model = None
