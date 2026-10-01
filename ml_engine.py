@@ -28,6 +28,8 @@ from sklearn.cluster import KMeans
 import database as db
 
 
+
+
 def _clean(text):
     text = text.lower()
     text = re.sub(r"[^a-z0-9\s,]", " ", text)
