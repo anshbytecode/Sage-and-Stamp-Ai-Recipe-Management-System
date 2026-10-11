@@ -11,12 +11,12 @@ from ml_engine import engine
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
 
-
 def split_csv(text):
     return [t.strip() for t in text.split(",") if t.strip()]
 
 
 @app.route("/")
+
 def home():
     query = request.args.get("q", "").strip()
     all_recipes = db.get_all_recipes()
