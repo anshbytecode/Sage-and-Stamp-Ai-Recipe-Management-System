@@ -28,6 +28,7 @@ from sklearn.cluster import KMeans
 import database as db
 def _clean(text):
     text = text.lower()
+  
     text = re.sub(r"[^a-z0-9\s,]", " ", text)
     return text
 
@@ -48,6 +49,7 @@ class RecipeAI:
         self.vectorizer = None
         self.tfidf_matrix = None
         self.cuisine_model = None
+      
       
         self.cuisine_vectorizer = None
         self.cluster_model = None
