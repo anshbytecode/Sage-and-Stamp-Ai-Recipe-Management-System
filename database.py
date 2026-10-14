@@ -54,6 +54,7 @@ def add_recipe(title, cuisine, ingredients, instructions, prep_time, cook_time,
                     
     new_id = cur.lastrowid
     conn.close()
+                    
     return new_id
 
 
@@ -62,6 +63,7 @@ def update_recipe(recipe_id, **fields):
         return
     conn = get_connection()
     set_clause = ", ".join(f"{k} = ?" for k in fields)
+    
     values = list(fields.values()) + [recipe_id]
     conn.execute(f"UPDATE recipes SET {set_clause} WHERE id = ?", values)
     conn.commit()
