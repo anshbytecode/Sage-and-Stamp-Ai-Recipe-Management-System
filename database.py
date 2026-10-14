@@ -22,6 +22,7 @@ def init_db():
     conn = get_connection()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS recipes (
+        
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             cuisine TEXT,
@@ -50,6 +51,7 @@ def add_recipe(title, cuisine, ingredients, instructions, prep_time, cook_time,
     """, (title, cuisine, ingredients, instructions, prep_time, cook_time,
           servings, calories, tags, cuisine_predicted, datetime.utcnow().isoformat()))
     conn.commit()
+                    
     new_id = cur.lastrowid
     conn.close()
     return new_id
