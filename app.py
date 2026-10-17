@@ -56,9 +56,11 @@ def add_recipe():
         cuisine = request.form.get("cuisine", "").strip()
         ingredients = request.form["ingredients"].strip()
         instructions = request.form["instructions"].strip()
+        
         prep_time = int(request.form.get("prep_time") or 0)
         cook_time = int(request.form.get("cook_time") or 0)
         servings = int(request.form.get("servings") or 4)
+        
         calories = request.form.get("calories") or None
         calories = int(calories) if calories else None
         tags = request.form.get("tags", "").strip()
