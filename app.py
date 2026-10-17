@@ -25,17 +25,21 @@ def home():
 
     if query:
         ranked = engine.smart_search(query)
+        
         recipes = [r for r, score in ranked]
         scores = {r["id"]: score for r, score in ranked}
     else:
         recipes = all_recipes
         scores = {}
+        
 
     return render_template("index.html", recipes=recipes, query=query,
+                           
                             scores=scores, total=len(all_recipes))
 
 
 @app.route("/recipe/<int:recipe_id>")
+
 def recipe_detail(recipe_id):
     recipe = db.get_recipe(recipe_id)
     if not recipe:
