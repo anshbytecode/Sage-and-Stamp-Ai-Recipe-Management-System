@@ -17,9 +17,11 @@ def split_csv(text):
 
 @app.route("/")
 
+
 def home():
     query = request.args.get("q", "").strip()
     all_recipes = db.get_all_recipes()
+    
 
     if query:
         ranked = engine.smart_search(query)
