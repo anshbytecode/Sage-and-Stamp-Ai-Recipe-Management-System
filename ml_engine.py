@@ -30,11 +30,13 @@ def _clean(text):
     text = text.lower()
   
     text = re.sub(r"[^a-z0-9\s,]", " ", text)
+  
     return text
 
 
 def _ingredients_text(recipe):
     """Turn the comma separated ingredients field into a clean bag-of-words string."""
+  
     return _clean(recipe["ingredients"].replace(",", " "))
 
 class RecipeAI:
