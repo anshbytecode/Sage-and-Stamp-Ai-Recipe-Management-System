@@ -54,7 +54,9 @@ class RecipeAI:
       
       
         self.cuisine_vectorizer = None
+      
         self.cluster_model = None
+      
         self.cluster_labels = None
         self.refresh()
 
