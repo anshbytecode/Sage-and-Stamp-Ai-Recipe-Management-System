@@ -67,6 +67,7 @@ class RecipeAI:
           
             self.vectorizer = None
             self.tfidf_matrix = None
+          
             self.cuisine_model = None
             self.cluster_model = None
             return
