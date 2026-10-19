@@ -6,6 +6,7 @@ immediately. Run once: `python seed_data.py`
 """
 import database as db
 
+
 RECIPES = [
     # title, cuisine, ingredients, instructions, prep, cook, servings, calories, tags
     ("Margherita Pizza", "Italian",
@@ -23,6 +24,7 @@ RECIPES = [
     ("Vegetable Biryani", "Indian",
      "basmati rice, mixed vegetables, yogurt, saffron, garam masala, onion, mint, ghee",
      "Fry onions until golden. Layer partially cooked rice with spiced vegetables and "
+     
      "saffron milk. Cook on low heat until fragrant.", 25, 40, 4, 480, "vegetarian,dinner"),
     ("Beef Tacos", "Mexican",
      "ground beef, taco shells, lettuce, tomato, cheddar cheese, onion, cumin, chili powder",
