@@ -43,10 +43,12 @@ RECIPES = [
      "Stir-fry chicken until golden. Add garlic, ginger, dried chili, then soy sauce and "
      "vinegar. Toss with peanuts and spring onion.", 15, 15, 3, 480, "dinner,spicy"),
     ("Classic Beef Burger", "American",
+     
      "ground beef, burger buns, cheddar cheese, lettuce, tomato, onion, ketchup, mustard",
      "Form beef patties, season and grill. Assemble on toasted buns with cheese, "
      "lettuce, tomato, onion and condiments.", 15, 10, 4, 700, "dinner,quick"),
     ("Mac and Cheese", "American",
+     
      "macaroni, cheddar cheese, milk, butter, flour, breadcrumbs, mustard powder",
      "Make a roux with butter and flour, whisk in milk, melt in cheese. Combine with "
      "cooked macaroni, top with breadcrumbs and bake until golden.", 10, 25, 4, 610, "vegetarian,comfort"),
