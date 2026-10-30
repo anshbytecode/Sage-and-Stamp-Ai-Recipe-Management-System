@@ -23,7 +23,9 @@ RECIPES = [
      "Marinate chicken in yogurt and spices. Grill chicken. Simmer tomato puree with "
      "onion, garlic, ginger, cream and add chicken.", 30, 25, 4, 590, "dinner,spicy"),
     ("Vegetable Biryani", "Indian",
+     
      "basmati rice, mixed vegetables, yogurt, saffron, garam masala, onion, mint, ghee",
+     
      "Fry onions until golden. Layer partially cooked rice with spiced vegetables and "
      
      "saffron milk. Cook on low heat until fragrant.", 25, 40, 4, 480, "vegetarian,dinner"),
