@@ -10,6 +10,7 @@ import database as db
 RECIPES = [
     # title, cuisine, ingredients, instructions, prep, cook, servings, calories, tags
     ("Margherita Pizza", "Italian",
+     
      "pizza dough, tomato sauce, mozzarella, basil, olive oil, salt",
      "Roll out dough, spread tomato sauce, top with mozzarella and basil, "
      "drizzle olive oil, bake at 250C for 8 minutes.", 20, 10, 2, 780, "vegetarian,dinner"),
