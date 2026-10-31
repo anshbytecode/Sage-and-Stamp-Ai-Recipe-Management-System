@@ -64,6 +64,8 @@ class RecipeAI:
     def refresh(self):
         self.recipes = db.get_all_recipes()
         if not self.recipes:
+
+          
           
             self.vectorizer = None
             self.tfidf_matrix = None
