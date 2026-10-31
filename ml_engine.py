@@ -121,6 +121,8 @@ class RecipeAI:
             return
         texts = [_ingredients_text(r) for r in labeled]
         labels = [r["cuisine"] for r in labeled]
+
+      
         self.cuisine_vectorizer = TfidfVectorizer(stop_words="english")
         X = self.cuisine_vectorizer.fit_transform(texts)
         self.cuisine_model = MultinomialNB()
