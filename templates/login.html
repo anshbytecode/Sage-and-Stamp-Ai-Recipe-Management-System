@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Log In — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="brand-icon" style="margin-bottom:8px;">⊛</span>
+            <h1>Welcome Back</h1>
+            <p class="auth-sub">Access your personalized palate model and saved recipes.</p>
+        </div>
+
+        <form method="post" action="{{ url_for('login') }}">
+            <label for="email">Email Address</label>
+            <input type="text" id="email" name="email" required placeholder="anshul@example.com" value="{{ email or '' }}">
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password">
+
+            <div class="btn-row" style="margin-top:20px;">
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">
+                    Log In
+                </button>
+            </div>
+        </form>
+
+        <!-- Quick 1-Click Demo Login -->
+        <div style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--border-color); text-align:center;">
+            <div style="font-size:12px; color:var(--ink-mid); margin-bottom:10px;">Quick Test Access:</div>
+            <form method="post" action="{{ url_for('login') }}">
+                <input type="hidden" name="email" value="anshul@example.com">
+                <input type="hidden" name="password" value="password123">
+                <button type="submit" class="btn btn-sm" style="width:100%; border-radius:var(--radius-pill);">
+                    ⚡ One-Click Demo Login (Anshul Bhilare)
+                </button>
+            </form>
+        </div>
+
+        <div style="margin-top:20px; text-align:center; font-size:13px; color:var(--ink-mid);">
+            Don't have an account yet?
+            <a href="{{ url_for('signup') }}" style="color:var(--brand-orange); font-weight:700;">Sign up here →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

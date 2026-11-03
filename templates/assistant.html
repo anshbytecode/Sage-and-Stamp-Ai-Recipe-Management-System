@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block title %}AI Cooking Assistant — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">AI Cooking Assistant &amp; Voice Chef</h1>
+        <span class="ai-stamp herb">Natural-Language Culinary LLM</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Ask cooking questions, explore substitutions, generate recipes from available pantry ingredients, or modify dishes hands-free using voice commands.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:24px; margin-top:10px;">
+    <!-- Left Column: Conversational AI Chef Assistant with Voice -->
+    <div>
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0;">Conversational Kitchen Chat</h3>
+                <span style="font-size:12px; color:var(--ink-soft);">Voice &amp; Text Capable</span>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="chat-window">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-bubble assistant">
+                        <strong>Chef Assistant:</strong> Namaste! I am your AI Cooking Assistant at Sage &amp; Stamp. Ask me about cooking techniques, ingredient substitutions (vegan, Jain, dairy-free), spice tempering, or troubleshooting!
+                    </div>
+                </div>
+
+                <div class="chat-input-bar">
+                    <button type="button" class="voice-mic-btn" id="mic-btn" title="Click to Speak" onclick="toggleVoiceInput()">
+                        🎤
+                    </button>
+                    <input type="text" id="chat-input" placeholder="Type or click microphone to speak..."
+                           onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="sendChatMessage()">
+                        Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Suggestion Pills -->
+            <div style="margin-top:14px;">
+                <div style="font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;">QUICK PROMPTS:</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" class="filter-btn" onclick="askQuickPrompt('How do I keep paneer soft in curries?')">Soft Paneer Secret</button>
+                    <button type="button" class="filter-btn" onclick="askQuickPrompt('What can I substitute for heavy cream in dal makhani?')">Cream Substitute</button>
+                    <button type="button" class="filter-btn" onclick="askQuickPrompt('How do I temper mustard seeds and hing properly?')">Tadka Science</button>
+                    <button type="button" class="filter-btn" onclick="askQuickPrompt('How do I fix a curry that is too salty or spicy?')">Fix Salty Gravy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Generative AI Recipe Creator & Modifier -->
+    <div>
+        <!-- GenAI Recipe Creator -->
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0;">✨ GenAI Recipe Synthesizer</h3>
+                <span class="ai-stamp" style="font-size:12px;">Pantry to Dish</span>
+            </div>
+            <p class="helper" style="margin-top:-6px;">Enter whatever ingredients you have in your kitchen.</p>
+
+            <form method="post" action="{{ url_for('assistant') }}">
+                <input type="hidden" name="action" value="generate">
+                <label>Ingredients on Hand <span class="helper">(comma separated)</span></label>
+                <textarea name="pantry" placeholder="e.g. paneer, tomatoes, ginger, green chilies, cashew nuts, garam masala" style="min-height:75px;">paneer, tomatoes, ginger, green chilies, cashew nuts, garam masala</textarea>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
+                    <div>
+                        <label>Preferred Cuisine</label>
+                        <select name="cuisine">
+                            <option value="North Indian">North Indian</option>
+                            <option value="South Indian">South Indian</option>
+                            <option value="Maharashtrian">Maharashtrian</option>
+                            <option value="Awadhi">Awadhi</option>
+                            <option value="Mughlai">Mughlai</option>
+                            <option value="Italian">Italian</option>
+                            <option value="Mexican">Mexican</option>
+                            <option value="Any">Any Cuisine</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Dietary Rule</label>
+                        <select name="diet">
+                            <option value="Vegetarian">Pure Vegetarian</option>
+                            <option value="Jain">Strict Jain (No Onion/Garlic/Potato)</option>
+                            <option value="Vegan">Vegan (Plant-Based)</option>
+                            <option value="Any">General Dietary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-spice" style="width:100%;">
+                        ✨ Generate AI Recipe
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recipe Modification Card -->
+        <div class="card card-padded" style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0;">🔄 Intelligent Recipe Modifier</h3>
+                <span class="ai-stamp herb" style="font-size:12px;">Dietary Adaptation</span>
+            </div>
+            <form method="post" action="{{ url_for('assistant') }}">
+                <input type="hidden" name="action" value="modify">
+                <label>Select Recipe to Modify</label>
+                <select name="recipe_id">
+                    {% for r in recipes %}
+                        <option value="{{ r.id }}">{{ r.title }} ({{ r.cuisine }})</option>
+                    {% endfor %}
+                </select>
+
+                <label>Modification Goal</label>
+                <select name="mod_type">
+                    <option value="make it spicy">Teekha / Extra Spicy (Kolhapuri Twist)</option>
+                    <option value="jain">Convert to Strict Jain (No Onion/Garlic)</option>
+                    <option value="vegan">Veganize (Dairy-Free / Cashew Cream)</option>
+                    <option value="low calorie">Low Calorie / Fit Edition</option>
+                    <option value="double batch">Double Portions (8 Servings)</option>
+                </select>
+
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        🔄 Modify Recipe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Display Generated Recipe Result -->
+{% if generated and not generated.error %}
+<div class="card card-padded" style="margin-top:30px; border:2px solid var(--spice);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <div>
+            <span class="pill pill-spice">{{ generated.cuisine }}</span>
+            <span class="pill">{{ generated.dietary_note }}</span>
+            <h2 class="display" style="margin:6px 0 2px;">{{ generated.title }}</h2>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary btn-sm" onclick="speakText(`Recipe: {{ generated.title }}. Instructions: {{ generated.instructions }}`)">
+                🔊 Listen
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid" style="margin-top:14px;">
+        <div>
+            <h4>Instructions</h4>
+            <div class="instructions">{{ generated.instructions }}</div>
+            <div style="margin-top:14px; background:#F5EFE4; padding:10px 14px; border-radius:6px; font-size:13.5px; border-left:3px solid var(--spice);">
+                <strong>👨‍🍳 Chef Secret:</strong> {{ generated.chef_tip }}
+            </div>
+        </div>
+        <div>
+            <h4>Ingredients</h4>
+            <div style="font-size:14px; line-height:1.6; background:#FFFDF8; padding:12px; border-radius:6px; border:1px solid var(--line);">
+                {{ generated.ingredients }}
+            </div>
+            <div style="margin-top:14px; background:#EAF0E2; padding:12px; border-radius:6px; font-size:13px;">
+                <strong>Estimated Nutrition:</strong> {{ generated.calories }} kcal • Protein: {{ generated.nutrition.protein }} • Carbs: {{ generated.nutrition.carbs }} • Fats: {{ generated.nutrition.fats }}
+            </div>
+        </div>
+    </div>
+</div>
+{% elif generated and generated.error %}
+<div class="flash flash-error" style="margin-top:24px;">{{ generated.error }}</div>
+{% endif %}
+
+<!-- Display Modified Recipe Result -->
+{% if modified %}
+<div class="card card-padded" style="margin-top:30px; border:2px solid var(--herb);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <div>
+            <span class="pill pill-veg">Adapted Dish</span>
+            <h2 class="display" style="margin:6px 0 2px;">{{ modified.title }}</h2>
+            <div style="font-size:13px; color:var(--ink-soft);">Adapted from <em>{{ modified.original_title }}</em></div>
+        </div>
+        <span class="ai-stamp herb">AI Adapted</span>
+    </div>
+
+    <div style="margin-top:12px; background:#EAF0E2; padding:10px 14px; border-radius:6px; font-size:13.5px;">
+        <strong>Summary of Changes:</strong> {{ modified.modification_summary }}
+        <ul style="margin:6px 0 0; padding-left:20px;">
+            {% for c in modified.key_changes %}
+                <li>{{ c }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="detail-grid" style="margin-top:14px;">
+        <div>
+            <h4>Adjusted Method</h4>
+            <div class="instructions">{{ modified.instructions }}</div>
+        </div>
+        <div>
+            <h4>Adjusted Ingredients</h4>
+            <div style="font-size:14px; line-height:1.6; background:#FFFDF8; padding:12px; border-radius:6px; border:1px solid var(--line);">
+                {{ modified.ingredients }}
+            </div>
+            <div style="margin-top:10px; font-size:13px; color:var(--ink-soft);">
+                Estimated Calories: <strong>{{ modified.calories }} kcal</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+let recognition = null;
+let isRecording = false;
+
+// Initialize Speech Recognition
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-IN'; // Indian English accent support
+
+    recognition.onstart = function() {
+        isRecording = true;
+        document.getElementById('mic-btn').classList.add('recording');
+        document.getElementById('chat-input').placeholder = "Listening... Speak your cooking question...";
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('chat-input').value = transcript;
+        sendChatMessage();
+    };
+
+    recognition.onerror = function() {
+        stopVoice();
+    };
+
+    recognition.onend = function() {
+        stopVoice();
+    };
+}
+
+function toggleVoiceInput() {
+    if (!recognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
+        return;
+    }
+    if (isRecording) {
+        recognition.stop();
+        stopVoice();
+    } else {
+        recognition.start();
+    }
+}
+
+function stopVoice() {
+    isRecording = false;
+    const mic = document.getElementById('mic-btn');
+    if (mic) mic.classList.remove('recording');
+    const input = document.getElementById('chat-input');
+    if (input) input.placeholder = "Type or click microphone to speak...";
+}
+
+function askQuickPrompt(text) {
+    document.getElementById('chat-input').value = text;
+    sendChatMessage();
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const chatBox = document.getElementById('chat-messages');
+
+    // Add user bubble
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble user';
+    userBubble.innerText = msg;
+    chatBox.appendChild(userBubble);
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Loading indicator
+    const loadingBubble = document.createElement('div');
+    loadingBubble.className = 'chat-bubble assistant';
+    loadingBubble.innerText = 'Chef is thinking...';
+    chatBox.appendChild(loadingBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    fetch("{{ url_for('api_chat') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+    })
+    .then(r => r.json())
+    .then(data => {
+        chatBox.removeChild(loadingBubble);
+        const replyBubble = document.createElement('div');
+        replyBubble.className = 'chat-bubble assistant';
+        replyBubble.innerHTML = `<strong>Chef Assistant:</strong><br>${data.response.replace(/\n/g, '<br>')}`;
+        
+        // Add speech readout button inside reply
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'btn btn-sm';
+        speakBtn.style.marginTop = '8px';
+        speakBtn.style.fontSize = '11px';
+        speakBtn.style.padding = '3px 8px';
+        speakBtn.innerHTML = '🔊 Read Aloud';
+        speakBtn.onclick = () => speakText(data.response);
+        replyBubble.appendChild(speakBtn);
+
+        chatBox.appendChild(replyBubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
+    .catch(() => {
+        loadingBubble.innerText = "Error connecting to AI Chef. Please try again.";
+    });
+}
+</script>
+{% endblock %}

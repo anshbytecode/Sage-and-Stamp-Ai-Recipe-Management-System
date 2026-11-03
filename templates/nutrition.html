@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Nutrition &amp; Dietary Dashboard — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">Nutrition &amp; Dietary Health Dashboard</h1>
+        <span class="ai-stamp herb">Ayurvedic &amp; Macro Analysis</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Explore the macronutrient distribution, dietary ratios, and Ayurvedic therapeutic properties across the Sage &amp; Stamp recipe database.
+    </p>
+</div>
+
+<!-- Macro & Dietary Overview Metrics -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:14px;">
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Vegetarian Dishes</div>
+        <div style="font-size:28px; font-weight:700; color:#2E7D32; margin-top:4px;">
+            {{ veg_count }} <small style="font-size:14px; color:var(--ink-soft);">({{ (veg_count / recipes|length * 100)|round(1) }}%)</small>
+        </div>
+        <div class="progress-bar-bg" style="margin-top:8px;">
+            <div class="progress-bar-fill progress-herb" style="width:{{ (veg_count / recipes|length * 100) }}%;"></div>
+        </div>
+    </div>
+
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Poultry / Mutton Dishes</div>
+        <div style="font-size:28px; font-weight:700; color:var(--spice); margin-top:4px;">
+            {{ non_veg_count }} <small style="font-size:14px; color:var(--ink-soft);">({{ (non_veg_count / recipes|length * 100)|round(1) }}%)</small>
+        </div>
+        <div class="progress-bar-bg" style="margin-top:8px;">
+            <div class="progress-bar-fill progress-spice" style="width:{{ (non_veg_count / recipes|length * 100) }}%;"></div>
+        </div>
+    </div>
+
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Average Calories / Meal</div>
+        <div style="font-size:28px; font-weight:700; color:var(--herb-dark); margin-top:4px;">
+            {{ avg_calories }} <small style="font-size:14px; color:var(--ink-soft);">kcal</small>
+        </div>
+        <div class="progress-bar-bg" style="margin-top:8px;">
+            <div class="progress-bar-fill progress-gold" style="width:{{ (avg_calories / 800 * 100)|round }}%;"></div>
+        </div>
+    </div>
+
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Dietary Safety Check</div>
+        <div style="font-size:20px; font-weight:700; color:#2E7D32; margin-top:8px;">
+            ✓ 100% India Compliant
+        </div>
+        <div style="font-size:11.5px; color:var(--ink-soft); margin-top:4px;">Strictly 0% Beef / Pork / Harmful Items</div>
+    </div>
+</div>
+
+<!-- Ayurvedic Bio-Energetics & Dosha Harmony Section -->
+<div class="card card-padded" style="margin-top:24px;">
+    <h3 style="margin-top:0;">🌿 Ayurvedic Dosha Harmony Guide</h3>
+    <p class="helper" style="margin-top:-4px;">Ayurveda categorizes foods based on elemental properties to promote metabolic equilibrium (Agni):</p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:14px;">
+        <div style="background:#FAF3E3; padding:16px; border-radius:6px; border-left:3px solid #D4A017;">
+            <h4 style="margin:0 0 6px; color:#875A00;">Vata Balancing (Air &amp; Ether)</h4>
+            <p style="font-size:13px; line-height:1.5; margin:0; color:var(--ink-soft);">
+                Favors warm, nourishing, unctuous gravies cooked in clarified ghee or sesame oil with warming spices (cumin, ginger, asafoetida).
+                <br><em>Examples: Dal Makhani, Khichdi, Warm Rajma Chawal.</em>
+            </p>
+        </div>
+
+        <div style="background:#F2F8ED; padding:16px; border-radius:6px; border-left:3px solid #43A047;">
+            <h4 style="margin:0 0 6px; color:#2E7D32;">Pitta Balancing (Fire &amp; Water)</h4>
+            <p style="font-size:13px; line-height:1.5; margin:0; color:var(--ink-soft);">
+                Favors sweet, bitter, and astringent foods with cooling herbs (fresh coriander, mint, fennel, coconut, ghee) and moderate chili.
+                <br><em>Examples: Palak Paneer, Masala Dosa with Coconut Chutney.</em>
+            </p>
+        </div>
+
+        <div style="background:#FDF3EE; padding:16px; border-radius:6px; border-left:3px solid #E64A19;">
+            <h4 style="margin:0 0 6px; color:#BF360C;">Kapha Balancing (Earth &amp; Water)</h4>
+            <p style="font-size:13px; line-height:1.5; margin:0; color:var(--ink-soft);">
+                Favors light, dry, stimulating, and warming preparations with black pepper, mustard seeds, turmeric, and crisp steamed textures.
+                <br><em>Examples: Khaman Dhokla, Yellow Lentil Soup, Poha.</em>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Dietary Categories Table -->
+<div class="card card-padded" style="margin-top:24px;">
+    <h3 style="margin-top:0;">Curated Calorie &amp; Protein Breakdown</h3>
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:14px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--ink); text-align:left;">
+                    <th style="padding:10px 8px;">Recipe</th>
+                    <th style="padding:10px 8px;">Cuisine</th>
+                    <th style="padding:10px 8px;">Dietary Tag</th>
+                    <th style="padding:10px 8px;">Prep + Cook</th>
+                    <th style="padding:10px 8px;">Calories</th>
+                    <th style="padding:10px 8px;">Servings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recipes %}
+                <tr style="border-bottom:1px dashed var(--line);">
+                    <td style="padding:10px 8px; font-weight:600;">
+                        <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" style="color:var(--herb-dark);">
+                            {{ r.title }}
+                        </a>
+                    </td>
+                    <td style="padding:10px 8px;"><span class="pill pill-spice">{{ r.cuisine }}</span></td>
+                    <td style="padding:10px 8px;">
+                        {% if 'vegetarian' in r.tags.lower() or 'paneer' in r.ingredients.lower() %}
+                            <span class="pill pill-veg">🌱 Veg</span>
+                        {% else %}
+                            <span class="pill">🍗 Non-Veg</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding:10px 8px;">{{ r.prep_time + r.cook_time }} min</td>
+                    <td style="padding:10px 8px; font-weight:600;">{{ r.calories or '—' }} kcal</td>
+                    <td style="padding:10px 8px;">{{ r.servings }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

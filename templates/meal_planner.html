@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}AI Meal Planner — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">AI Weekly Meal Planner &amp; Multi-Agent Suite</h1>
+        <span class="ai-stamp herb">4-Agent Autonomous Pipeline</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Generate an autonomous 7-day nutritional schedule tailored to your caloric goals and dietary rules (Pure Veg, Jain, Vegan, Non-Veg).
+    </p>
+</div>
+
+<!-- Preferences Configuration Card -->
+<div class="card card-padded" style="margin-top:14px;">
+    <form method="post" action="{{ url_for('meal_planner') }}">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+            <div>
+                <label>Daily Calorie Target</label>
+                <select name="calories">
+                    <option value="1600" {{ 'selected' if target_cals == '1600' }}>1,600 kcal (Deficit / Lean)</option>
+                    <option value="2000" {{ 'selected' if target_cals == '2000' or not target_cals }}>2,000 kcal (Standard Balanced)</option>
+                    <option value="2400" {{ 'selected' if target_cals == '2400' }}>2,400 kcal (Active / High Protein)</option>
+                </select>
+            </div>
+            <div>
+                <label>Dietary Style</label>
+                <select name="diet">
+                    <option value="Vegetarian" {{ 'selected' if diet == 'Vegetarian' }}>🌱 Pure Vegetarian</option>
+                    <option value="Jain" {{ 'selected' if diet == 'Jain' }}>✨ Strict Jain (No Onion/Garlic)</option>
+                    <option value="Vegan" {{ 'selected' if diet == 'Vegan' }}>🌿 Vegan (Plant-Based)</option>
+                    <option value="Non-Veg" {{ 'selected' if diet == 'Non-Veg' }}>🍗 Poultry &amp; Mutton</option>
+                </select>
+            </div>
+            <div>
+                <label>Preferred Cuisine Focus</label>
+                <select name="cuisine">
+                    <option value="Any" {{ 'selected' if cuisine == 'Any' }}>Global &amp; Indian Variety</option>
+                    <option value="North Indian" {{ 'selected' if cuisine == 'North Indian' }}>North Indian Comfort</option>
+                    <option value="South Indian" {{ 'selected' if cuisine == 'South Indian' }}>South Indian Specialties</option>
+                    <option value="Maharashtrian" {{ 'selected' if cuisine == 'Maharashtrian' }}>Maharashtrian</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="font-size:13px; color:var(--ink-soft);">
+                <strong>Allergen Filters:</strong>
+                <label style="display:inline; margin-left:10px; font-weight:normal;">
+                    <input type="checkbox" name="allergies" value="dairy"> Dairy-Free
+                </label>
+                <label style="display:inline; margin-left:10px; font-weight:normal;">
+                    <input type="checkbox" name="allergies" value="nuts"> Nut-Free
+                </label>
+                <label style="display:inline; margin-left:10px; font-weight:normal;">
+                    <input type="checkbox" name="allergies" value="gluten"> Gluten-Free
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                ⚡ Generate New Weekly Schedule
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Plan Summary & Health Score -->
+{% if plan %}
+<div style="margin-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+    <div>
+        <h2 class="display" style="margin:0;">Weekly Meal Itinerary</h2>
+        <div style="font-size:13.5px; color:var(--ink-soft); margin-top:2px;">
+            Average Weekly Health &amp; Harmony Score: <strong>{{ plan.average_health_score }}/100</strong>
+        </div>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <a href="#agent-trace" class="btn btn-sm">Inspect Agent Reasoning</a>
+        <a href="{{ url_for('grocery') }}" class="btn btn-sm btn-spice">🛒 Generate Grocery List For This Plan</a>
+    </div>
+</div>
+
+<!-- 7-Day Grid -->
+<div class="calendar-grid">
+    {% for day_name, day_data in plan.schedule.items() %}
+    <div class="day-card">
+        <div class="day-header">
+            <span class="day-name">{{ day_name }}</span>
+            <span class="pill pill-spice">{{ day_data.nutrition.daily_total_calories }} kcal</span>
+        </div>
+
+        {% for meal_type, slot in day_data.meals.items() %}
+        <div class="meal-slot">
+            <div class="meal-type">
+                <span>{{ meal_type }}</span>
+                <span>{{ slot.time }}</span>
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-top:3px;">
+                <a href="{{ url_for('recipe_detail', recipe_id=slot.recipe.id) }}" style="color:var(--herb-dark);">
+                    {{ slot.recipe.title }}
+                </a>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:2px;">
+                <span>{{ slot.recipe.cuisine }}</span>
+                <span>{{ slot.recipe.calories }} kcal</span>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Daily Nutrition Progress -->
+        <div style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--ink-soft);">
+            <div style="display:flex; justify-content:space-between;">
+                <span>Protein: {{ day_data.nutrition.macronutrients.protein }}</span>
+                <span>Carbs: {{ day_data.nutrition.macronutrients.carbs }}</span>
+                <span>Fats: {{ day_data.nutrition.macronutrients.fats }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Multi-Agent Orchestration Thought Trace Inspector -->
+<div id="agent-trace" class="card card-padded" style="margin-top:36px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <h3 style="margin-top:0;">🤖 Multi-Agent Orchestration Trace</h3>
+        <span class="ai-stamp" style="font-size:12px;">Live Agent Chain</span>
+    </div>
+    <p class="helper" style="margin-top:-6px;">
+        Exposing the autonomous thoughts, MCP tool executions, and decisions made across specialized culinary agents.
+    </p>
+
+    <div class="agent-trace">
+        {% for step in plan.orchestration_trace %}
+        <div class="trace-step">
+            <div><span class="trace-agent">[{{ step.agent }}]</span> &bull; <span class="trace-action">{{ step.step }}</span></div>
+            <div style="margin-top:3px; color:#CE93D8;">&gt; Thought: {{ step.thought }}</div>
+            <div style="margin-top:2px; color:#FFE082;">&gt; Action: {{ step.action }}</div>
+            <div class="trace-obs" style="margin-top:2px;">&gt; Observation: {{ step.observation }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}AI Grocery Assistant — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">AI Grocery Assistant</h1>
+        <span class="ai-stamp herb">Smart Inventory Deduction</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Select recipes you plan to cook this week, specify what's already in your kitchen pantry, and the assistant generates a categorized grocery list with estimated quantities.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1.6fr; gap:26px; margin-top:14px;">
+    <!-- Left Column: Recipe Selection & Pantry Inventory -->
+    <div>
+        <form method="post" action="{{ url_for('grocery') }}" class="card card-padded">
+            <h3 style="margin-top:0;">1. Select Recipes to Cook</h3>
+            <p class="helper" style="margin-top:-4px;">Check one or more dishes:</p>
+
+            <div style="max-height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:6px; padding:8px 12px; background:#FFFDF8;">
+                {% for r in recipes %}
+                <label style="font-weight:normal; margin:6px 0; display:flex; align-items:center; gap:8px; font-size:13.5px;">
+                    <input type="checkbox" name="recipe_ids" value="{{ r.id }}"
+                           {{ 'checked' if r.id in selected_ids }}>
+                    <span>{{ r.title }} <small style="color:var(--ink-soft);">({{ r.cuisine }})</small></span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <h3 style="margin-top:18px;">2. Ingredients in Your Pantry</h3>
+            <p class="helper" style="margin-top:-4px;">Items listed here will NOT be added to your shopping cart:</p>
+            <textarea name="pantry" style="min-height:75px;" placeholder="e.g. salt, water, cooking oil, cumin seeds">{{ pantry_text }}</textarea>
+
+            <div class="btn-row" style="margin-top:14px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    🛒 Update Shopping List
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Column: Categorized Grocery Shopping Aisles -->
+    <div>
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h3 style="margin:0;">Smart Grocery Checklist</h3>
+                    <div style="font-size:13px; color:var(--ink-soft); margin-top:2px;">
+                        {{ shopping.total_items_to_buy }} items needed for {{ shopping.recipes_included|length }} recipes
+                    </div>
+                </div>
+                <div class="btn-row" style="margin:0;">
+                    <button class="btn btn-sm" onclick="copyShoppingList()">📋 Copy List</button>
+                    <button class="btn btn-sm" onclick="window.print()">🖨️ Print</button>
+                </div>
+            </div>
+
+            <!-- Recipes Included Chips -->
+            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;">
+                <span style="font-size:12px; font-weight:700; color:var(--ink-soft); margin-right:4px;">Dishes:</span>
+                {% for dish in shopping.recipes_included %}
+                    <span class="pill pill-spice">{{ dish }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Items Already in Pantry -->
+            {% if shopping.items_in_pantry %}
+            <div style="margin-top:12px; background:#EBF3E5; padding:8px 12px; border-radius:6px; font-size:12.5px; color:var(--herb-dark);">
+                <strong>✓ Already in Pantry:</strong> {{ shopping.items_in_pantry | join(', ') }}
+            </div>
+            {% endif %}
+
+            <!-- Aisle Sections -->
+            <div class="aisle-grid" style="margin-top:16px;">
+                {% for aisle_name, items in shopping.aisles.items() %}
+                <div class="aisle-card">
+                    <h4 class="aisle-title">{{ aisle_name }} ({{ items|length }})</h4>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        {% for item in items %}
+                        <li class="grocery-item">
+                            <input type="checkbox" id="item-{{ loop.index }}-{{ aisle_name|replace(' ', '') }}"
+                                   onchange="toggleStrike(this)">
+                            <label for="item-{{ loop.index }}-{{ aisle_name|replace(' ', '') }}"
+                                   style="margin:0; font-weight:normal; cursor:pointer; flex:1;">
+                                <strong>{{ item.name }}</strong>
+                                <div style="font-size:11.5px; color:var(--ink-soft);">
+                                    Est. {{ item.quantity }} &bull; For: {{ item.needed_for }}
+                                </div>
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleStrike(checkbox) {
+    const label = checkbox.nextElementSibling;
+    if (checkbox.checked) {
+        label.style.textDecoration = 'line-through';
+        label.style.opacity = '0.5';
+    } else {
+        label.style.textDecoration = 'none';
+        label.style.opacity = '1';
+    }
+}
+
+function copyShoppingList() {
+    let listText = "🛒 Sage & Stamp Grocery Shopping List\n";
+    listText += "====================================\n\n";
+
+    const aisles = document.querySelectorAll('.aisle-card');
+    aisles.forEach(aisle => {
+        const title = aisle.querySelector('.aisle-title').innerText;
+        listText += `[${title}]\n`;
+        const items = aisle.querySelectorAll('.grocery-item label');
+        items.forEach(item => {
+            const name = item.querySelector('strong').innerText;
+            const meta = item.querySelector('div').innerText;
+            listText += `- [ ] ${name} (${meta})\n`;
+        });
+        listText += "\n";
+    });
+
+    navigator.clipboard.writeText(listText).then(() => {
+        alert("Shopping list copied to clipboard!");
+    }).catch(() => {
+        alert("Unable to copy to clipboard automatically.");
+    });
+}
+</script>
+{% endblock %}

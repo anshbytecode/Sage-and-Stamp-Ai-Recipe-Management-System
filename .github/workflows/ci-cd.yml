@@ -1,0 +1,51 @@
+name: Sage & Stamp CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Continuous Integration & Security Gate
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python Environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint & Static Code Analysis
+      run: |
+        python -m compileall .
+
+    - name: Cultural & Dietary Compliance Security Audit
+      run: |
+        python -c "import database as db; recipes = db.get_all_recipes(); assert all(db.check_dietary_compliance(r['title'], r['ingredients'])[0] for r in recipes), 'Dietary violation detected!'"
+
+    - name: Run Full Machine Learning & REST Verification Suite
+      run: |
+        python test_app.py
+
+  deploy:
+    name: Continuous Deployment
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to Cloud WSGI Production
+      run: |
+        echo "🚀 Production build verified. Deploying Sage & Stamp AI Edition..."
+

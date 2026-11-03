@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Culinary Intelligence Recipe Box — Sage & Stamp{% endblock %}
+{% block content %}
+
+<!-- Welcome Card matching user screenshot -->
+<div class="welcome-card">
+    <h2>Welcome, {{ current_user.name.split()[0] if current_user else 'Anshul' }} 👋</h2>
+    <p class="welcome-sub">
+        Palate modeled on {{ current_user.cooked_count if current_user else 1 }} cooked dishes and {{ current_user.saved_count if current_user else 0 }} saved favorites.
+    </p>
+    <div class="welcome-badges-row">
+        <span class="badge-affinity-healthy">🌿 Healthy Affinity {{ current_user.healthy_affinity if current_user else 100 }}%</span>
+        <span class="badge-affinity-spicy">🌶️ Spicy Affinity {{ current_user.spicy_affinity if current_user else 49 }}%</span>
+        <span class="badge-affinity-quick">⏱️ Quick Meals {{ current_user.quick_affinity if current_user else 100 }}%</span>
+        <a href="{{ url_for('profile') }}" class="btn-full-profile">Full Profile</a>
+    </div>
+</div>
+
+<!-- GenAI Culinary Studio Feature Card -->
+<div class="card card-padded" style="margin-top:20px; background:#FAF5EB; border:1.5px solid #D9C8A5; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:22px; background:#FFF; border:1px solid #D6CCA4; border-radius:50%; width:42px; height:42px; display:flex; align-items:center; justify-content:center;">✨</span>
+        <div>
+            <h3 style="margin:0; font-family:'Fraunces', serif; color:var(--brand-green); font-size:17px;">
+                GenAI Culinary Studio &amp; Recipe Synthesizer
+            </h3>
+            <div style="font-size:12.5px; color:var(--ink-mid); margin-top:2px;">
+                Synthesize custom dishes from pantry ingredients, adapt recipes (Jain, Vegan, Teekha), and explore Ayurvedic synergy.
+            </div>
+        </div>
+    </div>
+    <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('genai_studio') }}" class="btn btn-sm btn-spice">
+            ✨ Launch GenAI Lab
+        </a>
+        <button type="button" class="btn btn-sm" onclick="openChefModal()">
+            🧑‍🍳 Ask Chef Sage
+        </button>
+    </div>
+</div>
+
+<!-- Main Heading & Natural Search Bar matching user screenshot -->
+<div class="recipe-box-hero">
+    <h1>Culinary Intelligence Recipe Box</h1>
+    <p class="hero-lead">
+        {{ total }} recipes on file. Search naturally — e.g. <em>"quick vegetarian high-protein recipes under 500 calories"</em> — or explore your personalized recommendations below.
+    </p>
+
+    <form class="search-form-wrapper" method="get" action="{{ url_for('home') }}">
+        <input type="text" name="q" class="natural-search-input"
+               placeholder="Type natural search or ingredients: e.g. 'quick high protein paneer under 500 cal'..."
+               value="{{ query }}">
+        <button type="submit" class="btn-ai-search">AI Search</button>
+        {% if query or selected_goal %}
+            <a href="{{ url_for('home') }}" class="btn btn-sm" style="border-radius:999px;">Clear</a>
+        {% endif %}
+    </form>
+
+    <!-- Goal Filters row matching user screenshot -->
+    <div class="goal-filters-bar">
+        <span class="goal-filters-label">🎯 Goal Filters:</span>
+        <a href="{{ url_for('home', goal='High Protein') }}" class="goal-pill {{ 'active' if selected_goal == 'High Protein' }}">High Protein</a>
+        <a href="{{ url_for('home', goal='Low Calorie') }}" class="goal-pill {{ 'active' if selected_goal == 'Low Calorie' }}">Low Calorie</a>
+        <a href="{{ url_for('home', goal='Quick Meals') }}" class="goal-pill {{ 'active' if selected_goal == 'Quick Meals' }}">Quick Meals</a>
+        <a href="{{ url_for('home', goal='Budget Meals') }}" class="goal-pill {{ 'active' if selected_goal == 'Budget Meals' }}">Budget Meals</a>
+        <a href="{{ url_for('home', goal='Vegetarian') }}" class="goal-pill {{ 'active' if selected_goal == 'Vegetarian' }}">Vegetarian</a>
+        <a href="{{ url_for('home', goal='Vegan') }}" class="goal-pill {{ 'active' if selected_goal == 'Vegan' }}">Vegan</a>
+        <a href="{{ url_for('home', goal='High Fiber') }}" class="goal-pill {{ 'active' if selected_goal == 'High Fiber' }}">High Fiber</a>
+        <a href="{{ url_for('home', goal='Breakfast') }}" class="goal-pill {{ 'active' if selected_goal == 'Breakfast' }}">Breakfast</a>
+        <a href="{{ url_for('home', goal='Weight-management') }}" class="goal-pill {{ 'active' if selected_goal == 'Weight-management' }}">Weight-management</a>
+    </div>
+</div>
+
+{% if not recipes %}
+    <div class="card card-padded" style="margin-top:30px; text-align:center;">
+        <p style="color:var(--ink-mid); font-size:15px;">
+            {% if query %}No recipes matched "{{ query }}". Try searching by another ingredient or clearing filters.{% else %}No recipes yet — <a href="{{ url_for('add_recipe') }}" style="color:var(--brand-orange); font-weight:700;">add your first one</a>.{% endif %}
+        </p>
+    </div>
+{% endif %}
+
+<!-- Recipes Grid -->
+<div class="recipe-grid">
+    {% for r in recipes %}
+    <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="card recipe-card">
+        <h3>{{ r.title }}</h3>
+        <div class="meta-row">
+            <span class="pill pill-spice">{{ r.cuisine }}</span>
+            <span class="pill">{{ r.prep_time + r.cook_time }} min</span>
+            {% if r.calories %}<span class="pill">{{ r.calories }} kcal</span>{% endif %}
+            {% if 'vegetarian' in r.tags.lower() or 'paneer' in r.ingredients.lower() %}
+                <span class="pill pill-veg">Veg</span>
+            {% endif %}
+        </div>
+        <div class="ingredients-preview">{{ r.ingredients }}</div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6px;">
+            {% if query and r.id in scores %}
+                <span class="ai-stamp">match {{ scores[r.id] }}%</span>
+            {% else %}
+                <span style="font-size:12px; color:var(--brand-green); font-weight:700;">View Recipe →</span>
+            {% endif %}
+            {% if r.cuisine_predicted %}
+                <span class="pill" style="font-size:10px; background:#EDE6D6;">AI-Classified</span>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock %}

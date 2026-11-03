@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }} — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="detail-header" style="margin-top:24px;">
+    <div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <h1 class="display" style="margin-bottom:4px; margin-top:0;">{{ recipe.title }}</h1>
+            {% if 'vegetarian' in recipe.tags.lower() or 'paneer' in recipe.ingredients.lower() %}
+                <span class="pill pill-veg">🌱 100% Vegetarian</span>
+            {% else %}
+                <span class="pill pill-spice">🍗 Non-Vegetarian</span>
+            {% endif %}
+        </div>
+        <div class="meta-row">
+            <span class="pill pill-spice">{{ recipe.cuisine }}</span>
+            <span class="pill">Prep: {{ recipe.prep_time }} min</span>
+            <span class="pill">Cook: {{ recipe.cook_time }} min</span>
+            <span class="pill">Total: {{ recipe.prep_time + recipe.cook_time }} min</span>
+            <span class="pill">Serves: {{ recipe.servings }}</span>
+            {% if recipe.calories %}<span class="pill">{{ recipe.calories }} kcal</span>{% endif %}
+        </div>
+        {% if recipe.cuisine_predicted %}
+            <div style="margin-top:8px;"><span class="ai-stamp herb">Multinomial Naive Bayes Predicted Cuisine</span></div>
+        {% endif %}
+    </div>
+    
+    <div class="btn-row">
+        <!-- Save & Cook Actions -->
+        <button class="btn btn-sm btn-spice" onclick="toggleSaveRecipe({{ recipe.id }})" id="save-btn">
+            ❤️ Save Favorite
+        </button>
+        <button class="btn btn-sm" onclick="markRecipeCooked({{ recipe.id }})" id="cook-btn">
+            🍳 Cooked This
+        </button>
+        <!-- Hands-Free Voice Assistant Button -->
+        <button class="btn btn-primary btn-sm" onclick="readRecipeAloud()">
+            🔊 Voice Chef (Listen)
+        </button>
+        <button class="btn btn-sm" onclick="stopSpeaking()">
+            ⏹ Stop
+        </button>
+        <a class="btn btn-sm" href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}"
+              onsubmit="return confirm('Delete this recipe permanently?');" style="display:inline;">
+            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column: Instructions and Method -->
+    <div>
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin-top:0;">Cooking Method</h3>
+                <span style="font-size:12px; color:var(--ink-soft);">Hands-free step-by-step guidance</span>
+            </div>
+            <div class="instructions" id="recipe-instructions">{{ recipe.instructions }}</div>
+        </div>
+
+        <!-- Generative Nutrition & Ayurvedic Explanation -->
+        {% if nutrition %}
+        <div class="card card-padded" style="margin-top:20px;">
+            <h3 style="margin-top:0; color:var(--herb-dark);">🌿 Nutrition &amp; Ayurvedic Harmony</h3>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:12px; text-align:center;">
+                <div style="background:#F2ECE0; padding:10px; border-radius:6px;">
+                    <div style="font-size:11px; font-weight:700; color:var(--ink-soft);">PROTEIN</div>
+                    <div style="font-size:18px; font-weight:700; color:var(--herb-dark);">{{ nutrition.macronutrient_profile.protein_ratio }}</div>
+                </div>
+                <div style="background:#F2ECE0; padding:10px; border-radius:6px;">
+                    <div style="font-size:11px; font-weight:700; color:var(--ink-soft);">COMPLEX CARBS</div>
+                    <div style="font-size:18px; font-weight:700; color:var(--spice-dark);">{{ nutrition.macronutrient_profile.carb_ratio }}</div>
+                </div>
+                <div style="background:#F2ECE0; padding:10px; border-radius:6px;">
+                    <div style="font-size:11px; font-weight:700; color:var(--ink-soft);">HEALTHY FATS</div>
+                    <div style="font-size:18px; font-weight:700; color:var(--ink);">{{ nutrition.macronutrient_profile.healthy_fats_ratio }}</div>
+                </div>
+            </div>
+            <div style="margin-top:14px; font-size:14px;">
+                <strong>Key Health Properties:</strong>
+                <ul style="margin:6px 0 0; padding-left:20px;">
+                    {% for b in nutrition.key_benefits %}
+                        <li style="margin-bottom:4px;">{{ b }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div style="margin-top:10px; font-size:13px; color:var(--herb-dark); background:#EAF0E2; padding:8px 12px; border-radius:6px;">
+                <strong>Ayurvedic Balance:</strong> {{ nutrition.ayurvedic_nature }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: Ingredients & Explainable AI Similar Dishes -->
+    <div>
+        <div class="card card-padded">
+            <h3 style="margin-top:0;">Ingredients Required</h3>
+            <ul class="ingredient-list" id="recipe-ingredients">
+                {% for ing in recipe.ingredients.split(',') %}
+                    <li>{{ ing.strip() }}</li>
+                {% endfor %}
+            </ul>
+            <div style="margin-top:14px;">
+                <form action="{{ url_for('grocery') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="recipe_ids" value="{{ recipe.id }}">
+                    <button type="submit" class="btn btn-sm btn-spice" style="width:100%;">
+                        🛒 Add to Grocery Shopping List
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Explainable AI Recommendations -->
+        <div class="card card-padded" style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0;">You Might Also Like</h3>
+                <span class="ai-stamp" style="font-size:13px;">Explainable AI</span>
+            </div>
+            <p class="helper" style="margin-top:-6px; margin-bottom:14px;">
+                Discovered via TF-IDF Vector Cosine Similarty with transparent feature matching.
+            </p>
+            {% if similar %}
+                {% for r, score, xai in similar %}
+                <div style="padding:10px 0; border-bottom:1px dashed var(--line);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" style="font-weight:600; font-size:15px; color:var(--herb-dark);">
+                            {{ r.title }}
+                        </a>
+                        <span class="ai-stamp">{{ score }}%</span>
+                    </div>
+                    
+                    <!-- Explainable AI Breakdown Box -->
+                    <div class="xai-box">
+                        <div style="font-weight:600; color:var(--spice-dark); margin-bottom:4px;">
+                            💡 Why recommended:
+                        </div>
+                        <div>{{ xai.summary }}</div>
+                        <div style="margin-top:6px;">
+                            {% for ing in xai.common_ingredients %}
+                                <span class="xai-tag">{{ ing }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="helper">Not enough overlapping recipes yet to suggest similar dishes.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function readRecipeAloud() {
+    const title = "{{ recipe.title }}";
+    const prep = "{{ recipe.prep_time }} minutes prep time, {{ recipe.cook_time }} minutes cook time";
+    const ings = Array.from(document.querySelectorAll('#recipe-ingredients li')).map(li => li.innerText).join(', ');
+    const instructions = document.getElementById('recipe-instructions').innerText;
+
+    const fullScript = `Now reading recipe for ${title}. ${prep}. The ingredients you need are: ${ings}. Here is the step by step preparation: ${instructions}. Happy cooking!`;
+    speakText(fullScript);
+}
+
+function toggleSaveRecipe(recipeId) {
+    fetch(`/recipe/${recipeId}/save`, { method: "POST" })
+    .then(r => r.json())
+    .then(data => {
+        const btn = document.getElementById('save-btn');
+        if (data.saved) {
+            btn.innerHTML = '❤️ Saved in Favorites';
+            btn.style.background = '#2E7D32';
+        } else {
+            btn.innerHTML = '🤍 Save Favorite';
+            btn.style.background = 'var(--brand-orange)';
+        }
+        alert(data.message);
+    });
+}
+
+function markRecipeCooked(recipeId) {
+    fetch(`/recipe/${recipeId}/cook`, { method: "POST" })
+    .then(r => r.json())
+    .then(data => {
+        const btn = document.getElementById('cook-btn');
+        btn.innerHTML = '✓ Cooked!';
+        btn.disabled = true;
+        alert(data.message + ` (Total Cooked: ${data.cooked_count})`);
+    });
+}
+</script>
+{% endblock %}

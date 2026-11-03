@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Graph &amp; Sentiment — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>🕸️ Flavor Knowledge Graph &amp; Sentiment</h1>
+    <p class="hero-lead">
+        Network topology mapping aromatic flavor affinities, shared culinary compounds, and community sentiment across recipe profiles.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:1.4fr 1fr; gap:24px; margin-top:20px;">
+    <!-- Flavor Network Graph Card -->
+    <div class="card card-padded">
+        <h3 style="margin-top:0;">Interactive Flavor Affinity Network</h3>
+        <p class="helper" style="margin-top:-4px;">Visual representation of ingredient pairing frequencies:</p>
+        
+        <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:24px; text-align:center; min-height:300px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:wrap; max-width:480px;">
+                <span class="pill pill-spice" style="padding:10px 18px; font-size:14px;">Ginger (Adrak)</span>
+                <span style="color:var(--brand-orange); font-size:20px;">↔</span>
+                <span class="pill pill-spice" style="padding:10px 18px; font-size:14px;">Garlic (Lahsun)</span>
+            </div>
+            <div style="margin:14px 0; color:var(--ink-light); font-size:18px;">↕</div>
+            <div style="display:flex; justify-content:center; align-items:center; gap:20px; flex-wrap:wrap; max-width:500px;">
+                <span class="pill pill-veg" style="padding:10px 18px; font-size:14px;">Paneer / Dal</span>
+                <span style="color:var(--brand-green); font-size:20px;">↔</span>
+                <span class="pill" style="padding:10px 18px; font-size:14px; background:#F3ECE0;">Cumin &amp; Coriander</span>
+                <span style="color:var(--brand-green); font-size:20px;">↔</span>
+                <span class="pill pill-spice" style="padding:10px 18px; font-size:14px;">Tomato Puree</span>
+            </div>
+            <div style="margin-top:20px; font-size:12.5px; color:var(--ink-mid); max-width:440px;">
+                Network centrality index indicates <strong>Ginger-Garlic-Cumin</strong> acts as the central hub connecting over 86% of regional North Indian, Mughlai, and Awadhi recipes.
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Analysis Card -->
+    <div class="card card-padded">
+        <h3 style="margin-top:0;">Culinary Sentiment &amp; Mood</h3>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+            <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:13.5px;">
+                    <span>Comfort &amp; Satiety</span>
+                    <span style="color:var(--brand-green);">98% Positive</span>
+                </div>
+                <div style="font-size:12px; color:var(--ink-mid); margin-top:3px;">Driven by Dal Makhani, Rajma Chawal, and Khichdi.</div>
+            </div>
+            <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:13.5px;">
+                    <span>Zest &amp; Invigoration</span>
+                    <span style="color:var(--brand-orange);">94% Positive</span>
+                </div>
+                <div style="font-size:12px; color:var(--ink-mid); margin-top:3px;">Driven by Samosa Chaat, Pav Bhaji, and Chole.</div>
+            </div>
+            <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; font-weight:700; font-size:13.5px;">
+                    <span>Mindful Health &amp; Clean Fuel</span>
+                    <span style="color:var(--brand-green);">96% Positive</span>
+                </div>
+                <div style="font-size:12px; color:var(--ink-mid); margin-top:3px;">Driven by Poha, Dhokla, Palak Paneer, and Lentil Soups.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

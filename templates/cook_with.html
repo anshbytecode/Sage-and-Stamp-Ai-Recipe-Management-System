@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}What Can I Cook? — Sage & Stamp{% endblock %}
+{% block content %}
+<h1 class="display" style="margin-top:24px;">What Can I Cook?</h1>
+<p class="lead">List what's in your pantry and the matcher will rank every recipe by how much
+    of it you can already make, and tell you exactly what's missing.</p>
+
+<form method="post" class="card" style="padding:20px;margin-top:10px;">
+    <label>Ingredients you have <span class="helper">(comma separated)</span></label>
+    <textarea name="pantry" placeholder="chicken, garlic, onion, rice, soy sauce">{{ pantry_text }}</textarea>
+    <div class="btn-row">
+        <button class="btn btn-primary" type="submit">Find Recipes</button>
+    </div>
+</form>
+
+{% if results is not none %}
+    <h2 style="margin-top:30px;">Results</h2>
+    {% if not results %}
+        <p class="helper">No matches found — try adding a few more common ingredients.</p>
+    {% endif %}
+    {% for item in results %}
+    <div class="card match-item" style="padding:16px 20px;margin-top:14px;">
+        <div class="detail-header">
+            <a href="{{ url_for('recipe_detail', recipe_id=item.recipe.id) }}"><h3 style="margin:0;">{{ item.recipe.title }}</h3></a>
+            <span class="ai-stamp">{{ item.coverage_pct }}% match</span>
+        </div>
+        <div class="match-bar-bg"><div class="match-bar-fill" style="width:{{ item.coverage_pct }}%;"></div></div>
+        <p style="font-size:13.5px;margin:6px 0 0;">
+            <span class="tag-have">Have:</span> {{ item.have | join(', ') if item.have else '—' }}
+        </p>
+        <p style="font-size:13.5px;margin:4px 0 0;">
+            <span class="tag-missing">Missing:</span> {{ item.missing | join(', ') if item.missing else 'nothing — you have it all!' }}
+        </p>
+    </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

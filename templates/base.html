@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Sage &amp; Stamp — Culinary Intelligence{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Top Global Header matching screenshot -->
+<header class="top-header">
+    <div class="header-content">
+        <div class="brand-block">
+            <a href="{{ url_for('home') }}" class="brand-title">
+                Sage <span class="brand-icon">⊛</span> Stamp
+            </a>
+            <span class="brand-sub">AI-Powered Recipe &amp; Culinary Intelligence</span>
+        </div>
+
+        <!-- User Palate & Cooking Status Strip + Top Auth Buttons -->
+        <div class="header-right-zone">
+            <div class="user-status-strip">
+                <span>❤️ Saved: <strong>{{ current_user.saved_count if current_user else session.get('saved_count', 0) }}</strong></span>
+                <span>🍳 Cooked: <strong>{{ current_user.cooked_count if current_user else session.get('cooked_count', 1) }}</strong></span>
+                <span>⭐ Palate: <strong>{{ current_user.palate if current_user else session.get('user_palate', 'North Indian & Mediterranean') }}</strong></span>
+            </div>
+
+            {% if current_user and session.get('logged_in') %}
+                <a href="{{ url_for('profile') }}" class="btn-top-auth" title="My Profile">
+                    👤 {{ current_user.name.split()[0] }}
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn-top-auth btn-top-logout">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-top-auth">
+                    Log In
+                </a>
+                <a href="{{ url_for('signup') }}" class="btn-top-auth btn-top-signup">
+                    Sign Up
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- Primary Navigation Row (Screenshot match) -->
+<nav class="nav-row-primary">
+    <div class="nav-inner">
+        <a href="{{ url_for('home') }}" class="nav-item-primary {{ 'active' if request.endpoint in ['home', 'dashboard'] }}">
+            Recipes
+        </a>
+        <a href="{{ url_for('assistant') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'assistant' }}">
+            🛡️ SAGE AI
+        </a>
+        <a href="{{ url_for('compare_recipes') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'compare_recipes' }}">
+            ⚖️ Compare
+        </a>
+        <a href="{{ url_for('cook_with') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'cook_with' }}">
+            🥫 Pantry
+        </a>
+        <a href="{{ url_for('badges_view') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'badges_view' }}">
+            🏆 Badges
+        </a>
+        <a href="{{ url_for('collections_view') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'collections_view' }}">
+            📁 Collections
+        </a>
+        <a href="{{ url_for('meal_planner') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'meal_planner' }}">
+            Meal Planner
+        </a>
+        <a href="{{ url_for('nutrition_dashboard') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'nutrition_dashboard' }}">
+            Nutrition AI
+        </a>
+        <a href="{{ url_for('budget_prep_view') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'budget_prep_view' }}">
+            Budget &amp; Prep
+        </a>
+        <a href="{{ url_for('sustainability_view') }}" class="nav-item-primary {{ 'active' if request.endpoint == 'sustainability_view' }}">
+            Sustainability
+        </a>
+        <a href="{{ url_for('agents_dashboard') }}" class="nav-item-primary {{ 'active' if request.endpoint in ['agents_dashboard', 'rag_cookbooks'] }}">
+            🔬 ML Suite
+        </a>
+    </div>
+</nav>
+
+<!-- Secondary Sub-Navigation Row (Screenshot match) -->
+<div class="nav-row-secondary">
+    <div class="nav-inner">
+        <div class="sub-nav-links">
+            <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' }}">Dashboard</a>
+            <a href="{{ url_for('genai_studio') }}" class="{{ 'active' if request.endpoint == 'genai_studio' }}">✨ GenAI Studio</a>
+            <a href="{{ url_for('cicd_view') }}" class="{{ 'active' if request.endpoint == 'cicd_view' }}">🚀 CI/CD &amp; DevOps</a>
+            <a href="{{ url_for('food_vision') }}" class="{{ 'active' if request.endpoint == 'food_vision' }}">📷 Vision AI</a>
+            <a href="{{ url_for('graph_sentiment_view') }}" class="{{ 'active' if request.endpoint == 'graph_sentiment_view' }}">🕸️ Graph &amp; Sentiment</a>
+            <a href="{{ url_for('rag_cookbooks') }}" class="{{ 'active' if request.endpoint == 'rag_cookbooks' }}">📚 Cookbooks (RAG)</a>
+            <a href="{{ url_for('grocery') }}" class="{{ 'active' if request.endpoint == 'grocery' }}">🛒 Grocery List</a>
+        </div>
+        <a href="{{ url_for('add_recipe') }}" class="btn-add-recipe">
+            + Add Recipe
+        </a>
+    </div>
+</div>
+
+<div class="site-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">
+                    {% if category == 'success' %}✓{% elif category == 'error' %}⚠️{% else %}ℹ️{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Floating Action Button: Ask Chef Sage AI (Exact screenshot match) -->
+<button type="button" class="floating-chef-btn" onclick="openChefModal()">
+    🧑‍🍳 Ask Chef Sage AI
+</button>
+
+<!-- Chef Sage AI Assistant Modal Window -->
+<div class="chef-modal-backdrop" id="chef-modal-backdrop" onclick="if(event.target===this) closeChefModal()">
+    <div class="chef-modal-content">
+        <div class="chef-modal-header">
+            <div style="font-family:'Fraunces', serif; font-size:18px; font-weight:700; color:var(--brand-green);">
+                🧑‍🍳 Chef Sage AI — Culinary Assistant
+            </div>
+            <button type="button" class="chef-modal-close" onclick="closeChefModal()">&times;</button>
+        </div>
+        <div class="chat-window">
+            <div class="chat-messages" id="modal-chat-messages">
+                <div class="chat-bubble assistant">
+                    <strong>Chef Sage AI:</strong> Namaste! I am your AI Culinary Assistant. Ask me anything about cooking techniques, substitutions (vegan, Jain, dairy-free), spice chemistry, or quick weeknight meal plans!
+                </div>
+            </div>
+            <div class="chat-input-bar">
+                <button type="button" class="voice-mic-btn" id="modal-mic-btn" title="Speak" onclick="toggleModalVoiceInput()">
+                    🎤
+                </button>
+                <input type="text" id="modal-chat-input" placeholder="Ask Chef Sage a question or click 🎤 to speak..."
+                       onkeydown="if(event.key==='Enter') sendModalChatMessage()">
+                <button type="button" class="btn btn-primary btn-sm" onclick="sendModalChatMessage()">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="site">
+    <div><strong>Sage &amp; Stamp — Culinary Intelligence &amp; Advanced AI Platform</strong></div>
+    <div style="margin-top:4px; font-size:12px; color:var(--ink-light);">
+        &copy; 2025 Anshul Bhilare. All rights reserved.
+    </div>
+</footer>
+
+<script>
+// Global Voice Speech Synthesizer
+function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*#_`]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+function openChefModal() {
+    document.getElementById('chef-modal-backdrop').style.display = 'flex';
+    document.getElementById('modal-chat-input').focus();
+}
+
+function closeChefModal() {
+    document.getElementById('chef-modal-backdrop').style.display = 'none';
+    stopSpeaking();
+}
+
+// Modal Chat Engine
+function sendModalChatMessage() {
+    const input = document.getElementById('modal-chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const chatBox = document.getElementById('modal-chat-messages');
+
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble user';
+    userBubble.innerText = msg;
+    chatBox.appendChild(userBubble);
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const loadingBubble = document.createElement('div');
+    loadingBubble.className = 'chat-bubble assistant';
+    loadingBubble.innerText = 'Chef Sage is thinking...';
+    chatBox.appendChild(loadingBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    fetch("{{ url_for('api_chat') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+    })
+    .then(r => r.json())
+    .then(data => {
+        chatBox.removeChild(loadingBubble);
+        const replyBubble = document.createElement('div');
+        replyBubble.className = 'chat-bubble assistant';
+        replyBubble.innerHTML = `<strong>Chef Sage:</strong><br>${data.response.replace(/\n/g, '<br>')}`;
+        
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'btn btn-sm';
+        speakBtn.style.marginTop = '6px';
+        speakBtn.style.fontSize = '11px';
+        speakBtn.style.padding = '2px 8px';
+        speakBtn.innerHTML = '🔊 Read Aloud';
+        speakBtn.onclick = () => speakText(data.response);
+        replyBubble.appendChild(speakBtn);
+
+        chatBox.appendChild(replyBubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
+    .catch(() => {
+        loadingBubble.innerText = "Error connecting to Chef Sage.";
+    });
+}
+
+// Modal Voice Input
+let modalRecognition = null;
+let isModalRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    modalRecognition = new SpeechRecognition();
+    modalRecognition.continuous = false;
+    modalRecognition.interimResults = false;
+    modalRecognition.lang = 'en-IN';
+
+    modalRecognition.onstart = function() {
+        isModalRecording = true;
+        document.getElementById('modal-mic-btn').classList.add('recording');
+        document.getElementById('modal-chat-input').placeholder = "Listening... Speak now...";
+    };
+
+    modalRecognition.onresult = function(event) {
+        document.getElementById('modal-chat-input').value = event.results[0][0].transcript;
+        sendModalChatMessage();
+    };
+
+    modalRecognition.onend = function() {
+        isModalRecording = false;
+        document.getElementById('modal-mic-btn').classList.remove('recording');
+        document.getElementById('modal-chat-input').placeholder = "Ask Chef Sage a question or click 🎤 to speak...";
+    };
+}
+
+function toggleModalVoiceInput() {
+    if (!modalRecognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
+        return;
+    }
+    if (isModalRecording) {
+        modalRecognition.stop();
+    } else {
+        modalRecognition.start();
+    }
+}
+</script>
+
+</body>
+</html>

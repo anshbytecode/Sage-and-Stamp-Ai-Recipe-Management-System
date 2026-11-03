@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Curated Collections — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>📁 Curated Recipe Collections</h1>
+    <p class="hero-lead">
+        Handpicked gastronomic suites organized by regional tradition, preparation speed, and dietary focus.
+    </p>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:30px; margin-top:20px;">
+    {% for col in collections %}
+    <div class="card card-padded">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap;">
+            <div>
+                <h2 style="font-family:'Fraunces', serif; margin:0 0 4px; color:var(--brand-green);">{{ col.name }}</h2>
+                <p style="font-size:13.5px; color:var(--ink-mid); margin:0;">{{ col.desc }}</p>
+            </div>
+            <span class="pill pill-spice">{{ col.recipes|length }} Recipes</span>
+        </div>
+
+        <div class="recipe-grid" style="margin-top:16px;">
+            {% for r in col.recipes %}
+            <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="card recipe-card" style="background:#FFFDF8;">
+                <h3>{{ r.title }}</h3>
+                <div class="meta-row">
+                    <span class="pill">{{ r.cuisine }}</span>
+                    <span class="pill">{{ r.prep_time + r.cook_time }} min</span>
+                    {% if r.calories %}<span class="pill">{{ r.calories }} kcal</span>{% endif %}
+                </div>
+                <div class="ingredients-preview">{{ r.ingredients }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Budget &amp; Meal Prep — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>💰 Budget &amp; Meal Prep Intelligence</h1>
+    <p class="hero-lead">
+        Optimize kitchen economics with cost-per-plate estimations, batch cooking timelines, and shelf-life guides.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:20px;">
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Avg. Cost / Serving</div>
+        <div style="font-size:30px; font-weight:700; color:var(--brand-green); margin-top:4px;">₹75 - ₹120</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:2px;">Vegetarian &amp; Poultry benchmark</div>
+    </div>
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Weekly Batch Prep Time</div>
+        <div style="font-size:30px; font-weight:700; color:var(--brand-orange); margin-top:4px;">45 mins</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:2px;">For gravies &amp; pulse soaking</div>
+    </div>
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Storage Viability</div>
+        <div style="font-size:30px; font-weight:700; color:var(--brand-green); margin-top:4px;">3 - 4 Days</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:2px;">Refrigerated at 4°C</div>
+    </div>
+</div>
+
+<div class="card card-padded" style="margin-top:24px;">
+    <h3 style="margin-top:0;">👨‍🍳 Smart Meal Prep Pro-Tips</h3>
+    <ul style="line-height:1.7; font-size:14px; margin:0; padding-left:20px;">
+        <li><strong>Universal Onion-Tomato Base:</strong> Saute 1 kg onions and 1.5 kg tomatoes with ginger-garlic paste and turmeric. Store in clean glass jars for up to 5 days; use as a 5-minute base for Paneer, Chole, or Mushroom curries.</li>
+        <li><strong>Legume Soaking Protocol:</strong> Always soak rajma and black dal in warm water with a pinch of baking soda for 12 hours. Cuts boiling energy costs by 50% and removes oligosaccharides.</li>
+        <li><strong>Paneer Longevity:</strong> Store opened paneer submerged in a container of fresh cold water in the fridge, changing water daily. Stays fresh and tender for up to 6 days.</li>
+    </ul>
+</div>
+{% endblock %}
+

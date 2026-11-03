@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Food Image Recognition — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">Food Image Recognition &amp; Computer Vision</h1>
+        <span class="ai-stamp herb">Visual Feature Extraction</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Upload a food photo or test our pre-loaded gallery. Our vision system extracts chromatic color palettes, detects culinary textures, and identifies the dish, estimated ingredients, and caloric profile.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:24px; margin-top:14px;">
+    <!-- Left Column: Upload or Sample Selection -->
+    <div>
+        <div class="card card-padded">
+            <h3 style="margin-top:0;">📸 Upload Food Photograph</h3>
+            <p class="helper" style="margin-top:-4px;">Supports JPG, PNG, or WEBP food photos taken from your camera or gallery.</p>
+
+            <form method="post" action="{{ url_for('food_vision') }}" enctype="multipart/form-data" style="margin-top:14px;">
+                <label for="photo">Choose Image File</label>
+                <input type="file" id="photo" name="photo" accept="image/*" required>
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        🔍 Analyze Food Image
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sample Gallery for Instant Testing -->
+        <div class="card card-padded" style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0;">✨ Instant Sample Gallery</h3>
+                <span class="helper">Click any dish to test recognition</span>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin-top:10px;">
+                {% for s in samples %}
+                <form method="post" action="{{ url_for('food_vision') }}">
+                    <input type="hidden" name="sample_id" value="{{ s.id }}">
+                    <button type="submit" class="btn btn-sm" style="width:100%; text-align:left; display:block; padding:8px 10px; background:#FFFDF8;">
+                        <div style="font-weight:700; color:var(--herb-dark); font-size:13px;">{{ s.name }}</div>
+                        <div style="font-size:11px; color:var(--ink-soft); margin-top:2px;">{{ s.cuisine }} &bull; {{ s.calories }} kcal</div>
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Visual Recognition Results -->
+    <div>
+        {% if analysis %}
+        <div class="card card-padded" style="border:2px solid var(--herb);">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <div>
+                    <span class="pill pill-spice">{{ analysis.cuisine }}</span>
+                    {% for tag in analysis.dietary_tags %}
+                        <span class="pill pill-veg">{{ tag }}</span>
+                    {% endfor %}
+                    <h2 class="display" style="margin:8px 0 2px;">{{ analysis.dish_name }}</h2>
+                </div>
+                <span class="ai-stamp">{{ analysis.confidence_pct }}% Confidence</span>
+            </div>
+
+            <p style="font-size:13.5px; color:var(--ink-soft); margin:6px 0 14px;">
+                {{ analysis.flavor_profile }}
+            </p>
+
+            <!-- Chromatic Color Palette -->
+            <div style="background:#F7F3EA; padding:12px; border-radius:6px; margin-bottom:14px;">
+                <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">
+                    Identified Dominant Chromatic Food Tones:
+                </div>
+                <div class="swatch-row">
+                    {% for color in analysis.dominant_tones %}
+                        <div class="swatch" style="background:{{ color }};" title="{{ color }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Identified Ingredients -->
+            <div>
+                <h4 style="margin:0 0 6px;">Identified Probable Ingredients:</h4>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    {% for ing in analysis.ingredients %}
+                        <span class="pill" style="font-size:12.5px; padding:4px 10px;">{{ ing }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Estimated Nutrition -->
+            <div style="margin-top:18px; padding-top:14px; border-top:1px dashed var(--line);">
+                <h4 style="margin:0 0 8px;">Nutritional Estimation:</h4>
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; text-align:center;">
+                    <div style="background:#F2ECE0; padding:8px; border-radius:6px;">
+                        <div style="font-size:10px; font-weight:700; color:var(--ink-soft);">CALORIES</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--herb-dark);">{{ analysis.calories }}</div>
+                    </div>
+                    <div style="background:#F2ECE0; padding:8px; border-radius:6px;">
+                        <div style="font-size:10px; font-weight:700; color:var(--ink-soft);">PROTEIN</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--spice);">{{ analysis.macros.protein }}</div>
+                    </div>
+                    <div style="background:#F2ECE0; padding:8px; border-radius:6px;">
+                        <div style="font-size:10px; font-weight:700; color:var(--ink-soft);">CARBS</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--ink);">{{ analysis.macros.carbs }}</div>
+                    </div>
+                    <div style="background:#F2ECE0; padding:8px; border-radius:6px;">
+                        <div style="font-size:10px; font-weight:700; color:var(--ink-soft);">FATS</div>
+                        <div style="font-size:16px; font-weight:700; color:var(--ink-soft);">{{ analysis.macros.fats }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="btn-row" style="margin-top:20px;">
+                <a href="{{ url_for('home', q=analysis.dish_name) }}" class="btn btn-primary btn-sm" style="flex:1;">
+                    📖 Search Dish in Recipe Box
+                </a>
+                <a href="{{ url_for('assistant') }}" class="btn btn-spice btn-sm" style="flex:1;">
+                    👨‍🍳 Synthesize in Assistant
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

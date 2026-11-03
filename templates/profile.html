@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}My Profile &amp; Palate Model — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>👤 Palate Profile &amp; Intelligence Model</h1>
+    <p class="hero-lead">
+        Customize your taste affinities, track dishes you've cooked, and view saved favorite recipes.
+    </p>
+</div>
+
+<div class="profile-grid">
+    <!-- Left Column: User Card & Bio Stats -->
+    <div>
+        <div class="profile-sidebar">
+            <div class="profile-avatar">
+                {{ user.name[0] if user.name else 'A' }}
+            </div>
+            <h2 style="font-family:'Fraunces', serif; margin:0 0 2px; color:var(--brand-green);">{{ user.name }}</h2>
+            <div style="font-size:13px; color:var(--ink-mid); margin-bottom:14px;">{{ user.email }}</div>
+
+            <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:16px; text-align:left;">
+                <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Modeled Palate</div>
+                <div style="font-size:15px; font-weight:700; color:var(--brand-orange); margin-top:2px;">{{ user.palate }}</div>
+                <div style="font-size:12px; color:var(--ink-mid); margin-top:4px;">Dietary Style: <strong>{{ user.diet_pref }}</strong></div>
+            </div>
+
+            <!-- Cooking & Saved Metrics -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center; margin-bottom:16px;">
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+                    <div style="font-size:11px; font-weight:700; color:var(--ink-mid);">COOKED</div>
+                    <div style="font-size:22px; font-weight:700; color:var(--brand-green);">{{ user.cooked_count }}</div>
+                </div>
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+                    <div style="font-size:11px; font-weight:700; color:var(--ink-mid);">SAVED</div>
+                    <div style="font-size:22px; font-weight:700; color:var(--brand-orange);">{{ saved_recipes|length }}</div>
+                </div>
+            </div>
+
+            <!-- Taste Affinities -->
+            <div style="text-align:left;">
+                <div style="font-size:12px; font-weight:700; color:var(--ink-mid); margin-bottom:8px; text-transform:uppercase;">Affinities</div>
+                <div style="margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px;">
+                        <span>🌿 Healthy Affinity</span>
+                        <strong>{{ user.healthy_affinity }}%</strong>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill progress-herb" style="width:{{ user.healthy_affinity }}%;"></div></div>
+                </div>
+                <div style="margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px;">
+                        <span>🌶️ Spicy Affinity</span>
+                        <strong>{{ user.spicy_affinity }}%</strong>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill progress-spice" style="width:{{ user.spicy_affinity }}%;"></div></div>
+                </div>
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px;">
+                        <span>⏱️ Quick Meals</span>
+                        <strong>{{ user.quick_affinity }}%</strong>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill progress-gold" style="width:{{ user.quick_affinity }}%;"></div></div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; border-top:1px dashed var(--border-color); padding-top:14px;">
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-danger" style="width:100%;">
+                    Log Out of Account
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Edit Profile & Saved Favorites -->
+    <div>
+        <!-- Edit Profile Form -->
+        <div class="card card-padded">
+            <h3 style="margin-top:0; color:var(--brand-green);">Edit Profile &amp; Preferences</h3>
+
+            <form method="post" action="{{ url_for('profile') }}">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div>
+                        <label for="name">Display Name</label>
+                        <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                    </div>
+                    <div>
+                        <label for="diet_pref">Dietary Preference</label>
+                        <select id="diet_pref" name="diet_pref">
+                            <option value="Vegetarian" {{ 'selected' if user.diet_pref == 'Vegetarian' }}>Pure Vegetarian</option>
+                            <option value="Jain" {{ 'selected' if user.diet_pref == 'Jain' }}>Strict Jain (No Root Veg)</option>
+                            <option value="Vegan" {{ 'selected' if user.diet_pref == 'Vegan' }}>Vegan (Plant-Based)</option>
+                            <option value="Non-Veg" {{ 'selected' if user.diet_pref == 'Non-Veg' }}>Poultry / Mutton</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="palate">Primary Palate Classification</label>
+                <input type="text" id="palate" name="palate" value="{{ user.palate }}" required
+                       placeholder="e.g. North Indian & Mediterranean, South Indian Coastal">
+
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:8px;">
+                    <div>
+                        <label for="healthy_affinity">Healthy %</label>
+                        <input type="number" id="healthy_affinity" name="healthy_affinity" min="0" max="100" value="{{ user.healthy_affinity }}">
+                    </div>
+                    <div>
+                        <label for="spicy_affinity">Spicy %</label>
+                        <input type="number" id="spicy_affinity" name="spicy_affinity" min="0" max="100" value="{{ user.spicy_affinity }}">
+                    </div>
+                    <div>
+                        <label for="quick_affinity">Quick %</label>
+                        <input type="number" id="quick_affinity" name="quick_affinity" min="0" max="100" value="{{ user.quick_affinity }}">
+                    </div>
+                </div>
+
+                <div class="btn-row" style="margin-top:18px;">
+                    <button type="submit" class="btn btn-primary">
+                        💾 Update Profile &amp; Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Saved Recipes List -->
+        <div class="card card-padded" style="margin-top:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0; color:var(--brand-green);">❤️ Saved Favorite Recipes ({{ saved_recipes|length }})</h3>
+                <span class="helper">Click any recipe to view</span>
+            </div>
+
+            {% if saved_recipes %}
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; margin-top:12px;">
+                    {% for r in saved_recipes %}
+                    <a href="{{ url_for('recipe_detail', recipe_id=r.id) }}" class="card" style="padding:12px; background:#FAF6ED;">
+                        <div style="font-weight:700; color:var(--brand-green); font-size:14px;">{{ r.title }}</div>
+                        <div style="font-size:12px; color:var(--ink-mid); margin-top:2px;">
+                            {{ r.cuisine }} &bull; {{ r.calories }} kcal
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="font-size:13.5px; color:var(--ink-mid); margin-top:10px;">
+                    You haven't saved any recipes to your favorites yet. Browse the <a href="{{ url_for('home') }}" style="color:var(--brand-orange); font-weight:700;">Recipe Box</a> and click the heart on dishes you love!
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

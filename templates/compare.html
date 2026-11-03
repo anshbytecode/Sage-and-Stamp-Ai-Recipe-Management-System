@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Compare Recipes — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>⚖️ Recipe &amp; Nutrition Comparator</h1>
+    <p class="hero-lead">
+        Evaluate recipes side-by-side: compare macronutrients, prep times, difficulty, and ingredient profiles to choose your ideal dish.
+    </p>
+</div>
+
+<form method="get" action="{{ url_for('compare_recipes') }}" class="card card-padded" style="margin-top:16px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:end;">
+        <div>
+            <label>Select Dish 1</label>
+            <select name="r1" onchange="this.form.submit()">
+                {% for r in recipes %}
+                    <option value="{{ r.id }}" {{ 'selected' if r1 and r1.id == r.id }}>{{ r.title }} ({{ r.cuisine }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Select Dish 2</label>
+            <select name="r2" onchange="this.form.submit()">
+                {% for r in recipes %}
+                    <option value="{{ r.id }}" {{ 'selected' if r2 and r2.id == r.id }}>{{ r.title }} ({{ r.cuisine }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary" style="height:42px;">Compare</button>
+        </div>
+    </div>
+</form>
+
+{% if r1 and r2 %}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+    <!-- Column 1 -->
+    <div class="card card-padded">
+        <span class="pill pill-spice">{{ r1.cuisine }}</span>
+        <h2 style="font-family:'Fraunces', serif; margin:8px 0 4px; color:var(--brand-green);">{{ r1.title }}</h2>
+        <div style="font-size:13px; color:var(--ink-mid); margin-bottom:14px;">
+            Total Time: <strong>{{ r1.prep_time + r1.cook_time }} mins</strong> &bull; Servings: <strong>{{ r1.servings }}</strong>
+        </div>
+
+        <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:14px;">
+            <div style="font-size:12px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Caloric Density</div>
+            <div style="font-size:24px; font-weight:700; color:var(--brand-orange);">{{ r1.calories or 420 }} kcal</div>
+        </div>
+
+        <h4>Ingredients ({{ r1.ingredients.split(',')|length }})</h4>
+        <ul style="padding-left:18px; font-size:13.5px; line-height:1.6;">
+            {% for item in r1.ingredients.split(',') %}
+                <li>{{ item.strip() }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('recipe_detail', recipe_id=r1.id) }}" class="btn btn-sm btn-primary" style="margin-top:10px;">View Full Recipe →</a>
+    </div>
+
+    <!-- Column 2 -->
+    <div class="card card-padded">
+        <span class="pill pill-spice">{{ r2.cuisine }}</span>
+        <h2 style="font-family:'Fraunces', serif; margin:8px 0 4px; color:var(--brand-green);">{{ r2.title }}</h2>
+        <div style="font-size:13px; color:var(--ink-mid); margin-bottom:14px;">
+            Total Time: <strong>{{ r2.prep_time + r2.cook_time }} mins</strong> &bull; Servings: <strong>{{ r2.servings }}</strong>
+        </div>
+
+        <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:14px;">
+            <div style="font-size:12px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Caloric Density</div>
+            <div style="font-size:24px; font-weight:700; color:var(--brand-orange);">{{ r2.calories or 420 }} kcal</div>
+        </div>
+
+        <h4>Ingredients ({{ r2.ingredients.split(',')|length }})</h4>
+        <ul style="padding-left:18px; font-size:13.5px; line-height:1.6;">
+            {% for item in r2.ingredients.split(',') %}
+                <li>{{ item.strip() }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('recipe_detail', recipe_id=r2.id) }}" class="btn btn-sm btn-primary" style="margin-top:10px;">View Full Recipe →</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}AI Agents &amp; MCP Console — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">Agentic AI &amp; Model Context Protocol (MCP)</h1>
+        <span class="ai-stamp herb">Autonomous Multi-Agent Architecture</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Inspect the 5 specialized autonomous agents orchestrating Sage &amp; Stamp, and interactively execute Model Context Protocol (MCP) tools for nutrition calculation, allergy auditing, and unit conversion.
+    </p>
+</div>
+
+<!-- 5 Agents Visual Cards -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-top:14px;">
+    <div class="card card-padded" style="border-top:3px solid var(--herb);">
+        <div style="font-size:24px;">🎯</div>
+        <h4 style="margin:8px 0 4px; font-size:16px;">Recommendation Agent</h4>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">
+            Evaluates user dietary criteria, cuisine affinities, and past favorites from the recipe pool.
+        </p>
+    </div>
+
+    <div class="card card-padded" style="border-top:3px solid var(--tomato);">
+        <div style="font-size:24px;">🛡️</div>
+        <h4 style="margin:8px 0 4px; font-size:16px;">Ingredient Analysis Agent</h4>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">
+            Enforces strict India compliance (zero beef/pork/harmful meats) and scans allergen profiles.
+        </p>
+    </div>
+
+    <div class="card card-padded" style="border-top:3px solid var(--spice);">
+        <div style="font-size:24px;">🥗</div>
+        <h4 style="margin:8px 0 4px; font-size:16px;">Nutrition Agent</h4>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">
+            Computes daily macronutrients (protein, carbs, fats), caloric targets, and health scores.
+        </p>
+    </div>
+
+    <div class="card card-padded" style="border-top:3px solid #D4A017;">
+        <div style="font-size:24px;">🗓️</div>
+        <h4 style="margin:8px 0 4px; font-size:16px;">Meal Planning Agent</h4>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">
+            Structures 7-day cyclical schedules with variety rotation across Breakfast, Lunch, Snack, and Dinner.
+        </p>
+    </div>
+
+    <div class="card card-padded" style="border-top:3px solid #6A1B9A;">
+        <div style="font-size:24px;">🧠</div>
+        <h4 style="margin:8px 0 4px; font-size:16px;">Orchestrator Agent</h4>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">
+            Manages inter-agent message passing, state transitions, thought chains, and final delivery.
+        </p>
+    </div>
+</div>
+
+<!-- MCP Interactive Execution Console -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+    <!-- Left Column: MCP Tool Trigger Form -->
+    <div>
+        <div class="card card-padded">
+            <h3 style="margin-top:0;">⚡ Live MCP Tool Execution Console</h3>
+            <p class="helper" style="margin-top:-4px;">Model Context Protocol connects the AI agent to verified tools via standard schemas.</p>
+
+            <label for="mcp-tool-select">Select MCP Tool</label>
+            <select id="mcp-tool-select" onchange="updateMcpForm()">
+                <option value="mcp_allergy_scanner">mcp_allergy_scanner (Allergen &amp; India Safety Audit)</option>
+                <option value="mcp_nutrition_calculator">mcp_nutrition_calculator (Macronutrient Breakdown)</option>
+                <option value="mcp_unit_converter">mcp_unit_converter (Culinary Metric Conversion)</option>
+            </select>
+
+            <div id="mcp-arg-container" style="margin-top:14px;">
+                <label id="arg-label">Ingredients to Scan</label>
+                <textarea id="mcp-args" style="min-height:90px;">paneer, butter, cashew nuts, fresh cream, garlic, cumin</textarea>
+            </div>
+
+            <div class="btn-row" style="margin-top:16px;">
+                <button type="button" class="btn btn-primary" onclick="runMcpTool()">
+                    ▶ Execute Tool Call (JSON-RPC)
+                </button>
+            </div>
+        </div>
+
+        <!-- MCP Tool Schema Definitions -->
+        <div class="card card-padded" style="margin-top:20px;">
+            <h4 style="margin-top:0;">Registered Tool Schemas ({{ tools|length }})</h4>
+            <div style="max-height:220px; overflow-y:auto; background:#2B2A22; color:#A5D6A7; padding:12px; border-radius:6px; font-family:'Courier New', monospace; font-size:11.5px;">
+                <pre style="margin:0;">{{ tools | tojson(indent=2) }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Live MCP Response Display -->
+    <div>
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0;">Tool Execution Output</h3>
+                <span class="ai-stamp herb" id="mcp-status-stamp">Ready</span>
+            </div>
+            <p class="helper" style="margin-top:-4px;">Structured JSON response received from the MCP server:</p>
+
+            <div style="background:#2B2A22; color:#FFF; padding:16px; border-radius:6px; min-height:360px; font-family:'Courier New', monospace; font-size:13px; overflow-y:auto;">
+                <pre id="mcp-response-output" style="margin:0; white-space:pre-wrap;">{{ sample_mcp | tojson(indent=2) }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateMcpForm() {
+    const tool = document.getElementById('mcp-tool-select').value;
+    const label = document.getElementById('arg-label');
+    const input = document.getElementById('mcp-args');
+
+    if (tool === 'mcp_allergy_scanner') {
+        label.innerText = 'Ingredients string to scan:';
+        input.value = 'paneer, butter, cashew nuts, fresh cream, garlic, cumin';
+    } else if (tool === 'mcp_nutrition_calculator') {
+        label.innerText = 'Dish Name & Ingredients (comma-separated):';
+        input.value = 'Paneer Butter Masala, paneer, butter, cashew nuts, tomato, cream';
+    } else if (tool === 'mcp_unit_converter') {
+        label.innerText = 'Conversion Parameters (Amount, From Unit, To Unit):';
+        input.value = '2.5, cup, grams';
+    }
+}
+
+function runMcpTool() {
+    const tool = document.getElementById('mcp-tool-select').value;
+    const rawVal = document.getElementById('mcp-args').value.trim();
+    const output = document.getElementById('mcp-response-output');
+    const stamp = document.getElementById('mcp-status-stamp');
+
+    stamp.innerText = "Executing...";
+    output.innerText = "Connecting to MCP Tool Server...";
+
+    let payloadArgs = {};
+    if (tool === 'mcp_allergy_scanner') {
+        payloadArgs = { ingredients: rawVal };
+    } else if (tool === 'mcp_nutrition_calculator') {
+        const parts = rawVal.split(',');
+        payloadArgs = {
+            dish_name: parts[0].trim(),
+            ingredients: parts.slice(1).map(p => p.trim())
+        };
+    } else if (tool === 'mcp_unit_converter') {
+        const parts = rawVal.split(',');
+        payloadArgs = {
+            amount: parseFloat(parts[0]) || 1,
+            from_unit: (parts[1] || 'cup').trim(),
+            to_unit: (parts[2] || 'grams').trim()
+        };
+    }
+
+    fetch("{{ url_for('api_mcp_execute') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            tool_name: tool,
+            arguments: payloadArgs
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        stamp.innerText = "HTTP 200 OK";
+        output.innerText = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+        stamp.innerText = "Error";
+        output.innerText = "Error executing MCP tool: " + err;
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}RAG Cookbook Assistant — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">RAG Cookbook Assistant</h1>
+        <span class="ai-stamp herb">Vector Retrieval &amp; Embeddings</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">
+        Upload digital cookbooks (PDF or Text), extract text into vector embeddings, and ask culinary questions grounded directly in cookbook sources with exact page and chunk citations.
+    </p>
+</div>
+
+<!-- Vector Database Metrics -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:10px;">
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Indexed Documents</div>
+        <div style="font-size:26px; font-weight:700; color:var(--herb-dark); margin-top:4px;">{{ documents|length }} Cookbooks</div>
+    </div>
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Vector Embeddings</div>
+        <div style="font-size:26px; font-weight:700; color:var(--spice); margin-top:4px;">{{ total_chunks }} Chunks</div>
+    </div>
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Vector Index Architecture</div>
+        <div style="font-size:18px; font-weight:700; color:var(--ink); margin-top:8px;">FAISS / Cosine Matrix</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1.3fr 1fr; gap:24px; margin-top:24px;">
+    <!-- Left Column: Ask RAG Assistant -->
+    <div>
+        <div class="card card-padded">
+            <h3 style="margin-top:0;">🔍 Ask Questions From Uploaded Cookbooks</h3>
+            <p class="helper" style="margin-top:-4px;">Semantic search scans all document chunks and synthesizes an answer with citations.</p>
+
+            <form method="post" action="{{ url_for('rag_cookbooks') }}" class="search-box" style="margin-top:10px;">
+                <input type="text" name="question" placeholder="e.g. How to slow-cook dal makhani to make it creamy without curdling?"
+                       value="{{ question }}" required>
+                <button type="submit" class="btn btn-primary">Query RAG</button>
+            </form>
+
+            <!-- Sample Query Pills -->
+            <div style="margin-top:14px;">
+                <span style="font-size:11.5px; font-weight:700; color:var(--ink-soft); text-transform:uppercase;">Try Sample Questions:</span>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+                    <form method="post" action="{{ url_for('rag_cookbooks') }}" style="display:inline;">
+                        <input type="hidden" name="question" value="What is the science and alchemy of tadka (tempering)?">
+                        <button type="submit" class="filter-btn">Alchemy of Tadka</button>
+                    </form>
+                    <form method="post" action="{{ url_for('rag_cookbooks') }}" style="display:inline;">
+                        <input type="hidden" name="question" value="How to achieve silky creamy dal makhani?">
+                        <button type="submit" class="filter-btn">Dal Makhani Secrets</button>
+                    </form>
+                    <form method="post" action="{{ url_for('rag_cookbooks') }}" style="display:inline;">
+                        <input type="hidden" name="question" value="How does the dum technique in royal biryani work?">
+                        <button type="submit" class="filter-btn">Dum Pukht Biryani</button>
+                    </form>
+                    <form method="post" action="{{ url_for('rag_cookbooks') }}" style="display:inline;">
+                        <input type="hidden" name="question" value="Why must turmeric be cooked in fat and paired with black pepper?">
+                        <button type="submit" class="filter-btn">Turmeric &amp; Pepper Synergy</button>
+                    </form>
+                    <form method="post" action="{{ url_for('rag_cookbooks') }}" style="display:inline;">
+                        <input type="hidden" name="question" value="What is the fermentation ratio for crisp masala dosa?">
+                        <button type="submit" class="filter-btn">Crisp Dosa Fermentation</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Grounded RAG Answer -->
+            {% if qa_result %}
+            <div style="margin-top:24px; padding-top:16px; border-top:1.5px solid var(--line);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0; font-size:18px; color:var(--herb-dark);">Synthesized Context Answer</h4>
+                    <span class="ai-stamp herb">Match Confidence: {{ qa_result.confidence }}%</span>
+                </div>
+                
+                <div style="margin-top:12px; font-size:15px; line-height:1.7; background:#FFFDF8; padding:16px; border-radius:6px; border:1px solid var(--line); white-space:pre-line;">
+                    {{ qa_result.answer }}
+                </div>
+
+                <div style="margin-top:18px;">
+                    <h5 style="margin:0 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft);">
+                        Verified Source References &amp; Citations ({{ qa_result.citations|length }})
+                    </h5>
+                    {% for c in qa_result.citations %}
+                    <div class="citation-card">
+                        <div class="citation-meta">
+                            <span>📖 {{ c.doc_name }} • Page {{ c.page }} [Chunk {{ c.chunk_id }}]</span>
+                            <span class="ai-stamp" style="font-size:12px; padding:1px 6px;">{{ c.score_pct }}% relevance</span>
+                        </div>
+                        <div class="citation-snippet">
+                            "{{ c.snippet }}"
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column: Upload Cookbook & Indexed Books List -->
+    <div>
+        <div class="card card-padded">
+            <h3 style="margin-top:0;">📄 Upload Cookbook (PDF / TXT)</h3>
+            <p class="helper" style="margin-top:-4px;">Upload culinary manuscripts or regional recipe PDFs to add them to your AI vector database.</p>
+
+            <form method="post" action="{{ url_for('rag_cookbooks') }}" enctype="multipart/form-data" style="margin-top:12px;">
+                <label for="cookbook_file">Choose PDF or Text File</label>
+                <input type="file" id="cookbook_file" name="cookbook_file" accept=".pdf,.txt" required>
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-spice" style="width:100%;">
+                        📤 Ingest &amp; Embed Document
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card card-padded" style="margin-top:20px;">
+            <h3 style="margin-top:0;">📚 Active Ingested Cookbooks</h3>
+            <ul style="list-style:none; padding:0; margin:10px 0 0;">
+                {% for doc in documents %}
+                <li style="padding:10px 0; border-bottom:1px dashed var(--line); font-size:14px;">
+                    <div style="font-weight:600; color:var(--herb-dark);">{{ doc.name }}</div>
+                    <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">
+                        {{ doc.chunks_count }} vector chunks • {{ doc.pages_count }} page(s)
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

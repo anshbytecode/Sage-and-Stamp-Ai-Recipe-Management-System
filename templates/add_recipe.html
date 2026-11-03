@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Recipe' if recipe and recipe.id else 'Add Recipe' }} — Sage & Stamp{% endblock %}
+{% block content %}
+<div style="max-width:760px; margin:24px auto 0;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 class="display" style="margin:0;">{{ 'Edit Recipe' if recipe and recipe.id else 'Add a New Recipe' }}</h1>
+        <span class="ai-stamp herb">Multinomial Naive Bayes Auto-Classifier</span>
+    </div>
+    <p class="lead" style="margin-top:6px;">Leave the cuisine blank and our machine learning classifier will deduce it from your ingredients. Sage &amp; Stamp strictly adheres to India dietary and cultural compliance.</p>
+
+    <form method="post" class="card card-padded" style="margin-top:20px;">
+        <label for="title">Recipe Title *</label>
+        <input type="text" id="title" name="title" required
+               placeholder="e.g. Shahi Paneer, Dal Tadka, Vegetable Biryani"
+               value="{{ recipe.title if recipe else '' }}" oninput="checkCompliance()">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div>
+                <label for="cuisine">Cuisine <span class="helper">(optional — AI will predict if empty)</span></label>
+                <input type="text" id="cuisine" name="cuisine"
+                       placeholder="e.g. North Indian, South Indian, Mughlai, Italian"
+                       value="{{ recipe.cuisine if recipe else '' }}">
+                <div id="ai-prediction-badge" style="margin-top:6px; display:none;">
+                    <span class="ai-stamp" id="prediction-text" style="font-size:12px;">AI predicting...</span>
+                </div>
+            </div>
+            <div>
+                <label for="tags">Tags <span class="helper">(comma separated)</span></label>
+                <input type="text" id="tags" name="tags"
+                       placeholder="e.g. vegetarian, spicy, quick, dinner, high-protein"
+                       value="{{ recipe.tags if recipe else '' }}">
+            </div>
+        </div>
+
+        <label for="ingredients">Ingredients * <span class="helper">(comma separated)</span></label>
+        <textarea id="ingredients" name="ingredients" required
+                  placeholder="paneer, butter, tomato puree, cream, cashew nuts, garam masala, kasuri methi, ginger, garlic"
+                  oninput="handleIngredientsInput()">{{ recipe.ingredients if recipe else '' }}</textarea>
+
+        <div id="compliance-status" style="margin-top:4px; font-size:12.5px; font-weight:600;"></div>
+
+        <label for="instructions">Instructions &amp; Method *</label>
+        <textarea id="instructions" name="instructions" required style="min-height:140px;"
+                  placeholder="1. Soak cashews and blend into paste.&#10;2. Heat butter in a pan, saute aromatics.&#10;3. Add purees and spices, simmer until aromatic.">{{ recipe.instructions if recipe else '' }}</textarea>
+
+        <div class="form-grid" style="margin-top:12px;">
+            <div>
+                <label for="prep_time">Prep Time (min)</label>
+                <input type="number" id="prep_time" name="prep_time" min="0"
+                       value="{{ recipe.prep_time if recipe else 15 }}">
+            </div>
+            <div>
+                <label for="cook_time">Cook Time (min)</label>
+                <input type="number" id="cook_time" name="cook_time" min="0"
+                       value="{{ recipe.cook_time if recipe else 20 }}">
+            </div>
+            <div>
+                <label for="servings">Servings</label>
+                <input type="number" id="servings" name="servings" min="1"
+                       value="{{ recipe.servings if recipe else 4 }}">
+            </div>
+        </div>
+
+        <div style="margin-top:6px; max-width:240px;">
+            <label for="calories">Calories (kcal per serving)</label>
+            <input type="number" id="calories" name="calories" min="0" placeholder="e.g. 450"
+                   value="{{ recipe.calories if recipe and recipe.calories else '' }}">
+        </div>
+
+        <div class="btn-row" style="margin-top:24px;">
+            <button class="btn btn-primary" type="submit" id="submit-btn">
+                {{ 'Update Recipe' if recipe and recipe.id else 'Save to Recipe Box' }}
+            </button>
+            <a class="btn" href="{{ url_for('home') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+let debounceTimer;
+
+function handleIngredientsInput() {
+    checkCompliance();
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(predictCuisineRealtime, 400);
+}
+
+function checkCompliance() {
+    const title = document.getElementById('title').value.toLowerCase();
+    const ings = document.getElementById('ingredients').value.toLowerCase();
+    const prohibited = ["beef", "steak", "cow", "veal", "pork", "bacon", "ham", "lard", "pancetta"];
+    const statusDiv = document.getElementById('compliance-status');
+    const submitBtn = document.getElementById('submit-btn');
+
+    let violation = null;
+    for (const term of prohibited) {
+        const regex = new RegExp('\\b' + term + '\\b', 'i');
+        if (regex.test(title) || regex.test(ings)) {
+            violation = term;
+            break;
+        }
+    }
+
+    if (violation) {
+        statusDiv.style.color = "var(--tomato)";
+        statusDiv.innerHTML = `⚠️ Notice: Recipes containing '${violation}' are not permitted in Sage & Stamp (India-Compliant Edition). Please choose paneer, chicken, mutton, or plant-based ingredients.`;
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+    } else {
+        statusDiv.style.color = "var(--herb-dark)";
+        statusDiv.innerHTML = `✓ 100% India Dietary Compliant`;
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+    }
+}
+
+function predictCuisineRealtime() {
+    const ings = document.getElementById('ingredients').value.trim();
+    const cuisineInput = document.getElementById('cuisine');
+    const badge = document.getElementById('ai-prediction-badge');
+    const badgeText = document.getElementById('prediction-text');
+
+    if (ings.length < 5 || cuisineInput.value.trim().length > 0) {
+        badge.style.display = "none";
+        return;
+    }
+
+    fetch("{{ url_for('api_predict_cuisine') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredients: ings })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.predictions && data.predictions.length > 0) {
+            const top = data.predictions[0];
+            badgeText.innerHTML = `Predicted Cuisine: <strong>${top[0]}</strong> (${top[1]}% confidence)`;
+            badge.style.display = "block";
+        } else {
+            badge.style.display = "none";
+        }
+    })
+    .catch(() => {
+        badge.style.display = "none";
+    });
+}
+</script>
+{% endblock %}

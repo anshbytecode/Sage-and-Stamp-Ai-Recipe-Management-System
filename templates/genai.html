@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}GenAI Recipe Studio — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;">
+        <h1 style="margin:0;">✨ GenAI Recipe Studio &amp; Synthesizer</h1>
+        <span class="ai-stamp herb">Generative Culinary LLM</span>
+    </div>
+    <p class="hero-lead" style="margin-top:6px;">
+        Synthesize authentic recipes from scratch based on available pantry items, adapt dishes to strict dietary rules (Jain, Vegan, Teekha), and save AI-created dishes directly to your permanent Recipe Box.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:1.1fr 1.3fr; gap:24px; margin-top:20px;">
+    <!-- Left Column: Generator & Transformer Controls -->
+    <div>
+        <!-- GenAI Synthesizer Form -->
+        <div class="card card-padded">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0; color:var(--brand-green);">1. Synthesize from Ingredients</h3>
+                <span class="ai-stamp" style="font-size:12px;">Pantry to Dish</span>
+            </div>
+            <p class="helper" style="margin-top:-4px;">Enter what you have at home; GenAI will craft a balanced dish.</p>
+
+            <form method="post" action="{{ url_for('genai_studio') }}">
+                <input type="hidden" name="action" value="generate">
+                <label>Ingredients or Craving</label>
+                <textarea name="pantry" placeholder="e.g. paneer, tomatoes, ginger, green chilies, cashew nuts, kasuri methi" style="min-height:75px;">paneer, tomatoes, ginger, green chilies, cashew nuts, kasuri methi</textarea>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+                    <div>
+                        <label>Target Cuisine</label>
+                        <select name="cuisine">
+                            <option value="North Indian">North Indian</option>
+                            <option value="South Indian">South Indian</option>
+                            <option value="Maharashtrian">Maharashtrian</option>
+                            <option value="Awadhi">Awadhi</option>
+                            <option value="Mughlai">Mughlai</option>
+                            <option value="Italian">Italian</option>
+                            <option value="Mexican">Mexican</option>
+                            <option value="Any">Any Cuisine</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Dietary Rule</label>
+                        <select name="diet">
+                            <option value="Vegetarian">Pure Vegetarian</option>
+                            <option value="Jain">Strict Jain (No Root Veg)</option>
+                            <option value="Vegan">Vegan (Plant-Based)</option>
+                            <option value="Any">General Dietary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-spice" style="width:100%;">
+                        ✨ Generate AI Recipe
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recipe Transformation Form -->
+        <div class="card card-padded" style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin-top:0; color:var(--brand-green);">2. Transform Existing Recipe</h3>
+                <span class="ai-stamp herb" style="font-size:12px;">Adaptive AI</span>
+            </div>
+            <form method="post" action="{{ url_for('genai_studio') }}">
+                <input type="hidden" name="action" value="modify">
+                <label>Select Recipe to Transform</label>
+                <select name="recipe_id">
+                    {% for r in recipes %}
+                        <option value="{{ r.id }}">{{ r.title }} ({{ r.cuisine }})</option>
+                    {% endfor %}
+                </select>
+
+                <label>Transformation Goal</label>
+                <select name="mod_type">
+                    <option value="make it spicy">Teekha / Extra Spicy (Kolhapuri Twist)</option>
+                    <option value="jain">Convert to Strict Jain (No Onion/Garlic/Potato)</option>
+                    <option value="vegan">Veganize (Dairy-Free / Cashew Cream)</option>
+                    <option value="low calorie">Low Calorie / Fit Edition</option>
+                    <option value="double batch">Double Batch (8 Servings)</option>
+                </select>
+
+                <div class="btn-row" style="margin-top:14px;">
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        🔄 Apply AI Transformation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Results & Interactive Output -->
+    <div>
+        {% if generated and not generated.error %}
+        <!-- Generated Recipe Card with 1-Click Save -->
+        <div class="card card-padded" style="border:2px solid var(--brand-orange); background:#FFFDF8;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <span class="pill pill-spice">{{ generated.cuisine }}</span>
+                    <span class="pill pill-veg">{{ generated.dietary_note }}</span>
+                    <h2 style="font-family:'Fraunces', serif; margin:8px 0 2px; color:var(--brand-green);">
+                        {{ generated.title }}
+                    </h2>
+                    <div style="font-size:12.5px; color:var(--ink-mid);">
+                        Prep: {{ generated.prep_time }}m &bull; Cook: {{ generated.cook_time }}m &bull; {{ generated.calories }} kcal
+                    </div>
+                </div>
+                <div class="btn-row" style="margin:0;">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="speakText('Recipe: {{ generated.title }}. Ingredients: {{ generated.ingredients }}. Method: {{ generated.instructions }}')">
+                        🔊 Read Aloud
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top:14px; background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                <h4 style="margin:0 0 6px;">Ingredients</h4>
+                <div style="font-size:13.5px; line-height:1.6; color:var(--ink-dark);">
+                    {{ generated.ingredients }}
+                </div>
+            </div>
+
+            <div style="margin-top:14px;">
+                <h4 style="margin:0 0 6px;">Instructions</h4>
+                <div class="instructions" style="font-size:14px; line-height:1.65;">
+                    {{ generated.instructions }}
+                </div>
+            </div>
+
+            <div style="margin-top:14px; background:#FBF6EE; border-left:3px solid var(--brand-orange); padding:10px 14px; font-size:13px;">
+                <strong>👨‍🍳 Chef Secret:</strong> {{ generated.chef_tip }}
+            </div>
+
+            <!-- 1-Click Save to Database Form -->
+            <form method="post" action="{{ url_for('genai_studio') }}" style="margin-top:16px;">
+                <input type="hidden" name="action" value="save_ai_recipe">
+                <input type="hidden" name="title" value="{{ generated.title }}">
+                <input type="hidden" name="cuisine" value="{{ generated.cuisine }}">
+                <input type="hidden" name="ingredients" value="{{ generated.ingredients }}">
+                <input type="hidden" name="instructions" value="{{ generated.instructions }}">
+                <input type="hidden" name="calories" value="{{ generated.calories }}">
+                <input type="hidden" name="prep_time" value="{{ generated.prep_time }}">
+                <input type="hidden" name="cook_time" value="{{ generated.cook_time }}">
+                <input type="hidden" name="tags" value="genai,ai-created,{{ generated.cuisine.lower() }}">
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    💾 Save This Recipe to Recipe Box
+                </button>
+            </form>
+        </div>
+
+        {% elif modified %}
+        <!-- Modified Recipe Card -->
+        <div class="card card-padded" style="border:2px solid var(--brand-green); background:#FFFDF8;">
+            <span class="pill pill-veg">AI Transformed</span>
+            <h2 style="font-family:'Fraunces', serif; margin:8px 0 2px; color:var(--brand-green);">
+                {{ modified.title }}
+            </h2>
+            <div style="font-size:12.5px; color:var(--ink-mid); margin-bottom:12px;">
+                Adapted from <em>{{ modified.original_title }}</em> &bull; Est. {{ modified.calories }} kcal
+            </div>
+
+            <div style="background:#EAF2E2; border:1px solid var(--brand-green-border); border-radius:8px; padding:12px; font-size:13px; color:var(--brand-green);">
+                <strong>Key Modifications:</strong> {{ modified.modification_summary }}
+                <ul style="margin:4px 0 0; padding-left:18px;">
+                    {% for c in modified.key_changes %}
+                        <li>{{ c }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="margin-top:14px;">
+                <h4 style="margin:0 0 6px;">Adjusted Ingredients</h4>
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px; font-size:13.5px;">
+                    {{ modified.ingredients }}
+                </div>
+            </div>
+
+            <div style="margin-top:14px;">
+                <h4 style="margin:0 0 6px;">Adjusted Method</h4>
+                <div class="instructions" style="font-size:14px;">
+                    {{ modified.instructions }}
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Default State: Ayurvedic & Flavor Science Showcase -->
+        <div class="card card-padded">
+            <h3 style="margin-top:0; color:var(--brand-green);">🌿 Ayurvedic Food Chemistry &amp; Bio-Synergy</h3>
+            <p style="font-size:13.5px; color:var(--ink-mid); line-height:1.6;">
+                GenAI balances six traditional tastes (*Shad Rasa*) and elemental doshas in every synthesized recipe:
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                    <strong style="color:var(--brand-green);">Curcumin Bio-Activation:</strong>
+                    <div style="font-size:13px; color:var(--ink-mid); margin-top:2px;">
+                        Pairing turmeric with piperine in freshly cracked black pepper and warm ghee elevates anti-inflammatory curcumin absorption by up to 2,000%.
+                    </div>
+                </div>
+
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                    <strong style="color:var(--brand-orange);">Oligosaccharide Neutralization:</strong>
+                    <div style="font-size:13px; color:var(--ink-mid); margin-top:2px;">
+                        Tempering lentils with asafoetida (hing) and carom seeds (ajwain) breaks down gas-forming oligosaccharides, ensuring smooth digestion.
+                    </div>
+                </div>
+
+                <div style="background:#FAF6ED; border:1px solid var(--border-color); border-radius:8px; padding:12px;">
+                    <strong style="color:var(--brand-tan);">Hydration Osmosis for Paneer:</strong>
+                    <div style="font-size:13px; color:var(--ink-mid); margin-top:2px;">
+                        Soaking fresh paneer in warm salted water for 10 minutes keeps the casein protein matrix ultra-soft and prevents rubbery textures.
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; text-align:center;">
+                <button type="button" class="btn btn-primary" onclick="openChefModal()">
+                    🧑‍🍳 Chat Live with Chef Sage AI
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

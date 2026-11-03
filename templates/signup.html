@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="brand-icon" style="margin-bottom:8px;">⊛</span>
+            <h1>Create Account</h1>
+            <p class="auth-sub">Model your personal palate and culinary affinities.</p>
+        </div>
+
+        <form method="post" action="{{ url_for('signup') }}">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required placeholder="e.g. Anshul Bhilare" value="{{ name or '' }}">
+
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required placeholder="you@example.com" value="{{ email or '' }}">
+
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required placeholder="At least 6 characters">
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+                <div>
+                    <label for="diet_pref">Dietary Style</label>
+                    <select id="diet_pref" name="diet_pref">
+                        <option value="Vegetarian">Pure Vegetarian</option>
+                        <option value="Jain">Strict Jain</option>
+                        <option value="Vegan">Vegan (Plant-Based)</option>
+                        <option value="Non-Veg">Poultry / Mutton</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="palate">Regional Palate</label>
+                    <select id="palate" name="palate">
+                        <option value="North Indian & Mediterranean">North Indian</option>
+                        <option value="South Indian Coastal">South Indian</option>
+                        <option value="Maharashtrian Traditional">Maharashtrian</option>
+                        <option value="Royal Awadhi">Awadhi & Mughlai</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="btn-row" style="margin-top:22px;">
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:11px;">
+                    Create Account &amp; Model Palate
+                </button>
+            </div>
+        </form>
+
+        <div style="margin-top:20px; text-align:center; font-size:13px; color:var(--ink-mid);">
+            Already have an account?
+            <a href="{{ url_for('login') }}" style="color:var(--brand-green); font-weight:700;">Log in here →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sustainability Tracker — Sage & Stamp{% endblock %}
+{% block content %}
+<div class="recipe-box-hero">
+    <h1>🌱 Culinary Sustainability &amp; Eco-Footprint</h1>
+    <p class="hero-lead">
+        Transparent metrics highlighting the planetary impact of plant-forward, India-compliant gastronomic traditions.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:20px;">
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Carbon Emissions Saved</div>
+        <div style="font-size:34px; font-weight:700; color:var(--brand-green); margin-top:4px;">{{ co2_saved }} kg CO₂</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:4px;">vs. Western red-meat dietary averages</div>
+    </div>
+
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Freshwater Conserved</div>
+        <div style="font-size:34px; font-weight:700; color:var(--brand-orange); margin-top:4px;">{{ water_saved }} Liters</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:4px;">Through plant-protein &amp; pulse prioritization</div>
+    </div>
+
+    <div class="card card-padded" style="text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:var(--ink-mid); text-transform:uppercase;">Plant-Forward Ratio</div>
+        <div style="font-size:34px; font-weight:700; color:var(--brand-green); margin-top:4px;">{{ veg_pct }}%</div>
+        <div style="font-size:12px; color:var(--ink-light); margin-top:4px;">Pure vegetarian &amp; vegan dishes on file</div>
+    </div>
+</div>
+
+<div class="card card-padded" style="margin-top:24px;">
+    <h3 style="margin-top:0;">🌍 Why Cultural Compliance Protects the Planet</h3>
+    <p style="font-size:14px; line-height:1.65; color:var(--ink-mid);">
+        Eliminating beef and intensive red meats reduces the culinary carbon footprint by up to <strong>74%</strong>. The traditional Indian dietary pyramid—grounded in pulses (lentils, chickpeas, beans), whole grains (basmati rice, millets, wheat), vegetables, and dairy (paneer, curd)—offers one of the world's most ecologically sustainable models for complete human nutrition.
+    </p>
+</div>
+{% endblock %}
+
