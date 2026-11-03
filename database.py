@@ -15,6 +15,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "data", "recipes.db")
 
+# Vercel Serverless environment fallback: copy pre-seeded SQLite DB to /tmp if read-only
+if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirname(DB_PATH) or ".", os.W_OK)):
+    import shutil
+    TMP_DIR = "/tmp"
+    TMP_DB = os.path.join(TMP_DIR, "recipes.db")
+    if os.path.exists(DB_PATH) and not os.path.exists(TMP_DB):
+        try:
+            os.makedirs(TMP_DIR, exist_ok=True)
+            shutil.copy2(DB_PATH, TMP_DB)
+        except Exception:
+            pass
+    if os.path.exists(TMP_DB):
+        DB_PATH = TMP_DB
+
 # Prohibited items check (India dietary & cultural compliance)
 PROHIBITED_TERMS = [
     r"\bbeef\b",
@@ -51,7 +65,10 @@ def get_connection():
 
 
 def init_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    try:
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    except Exception:
+        pass
     conn = get_connection()
     # Recipes table
     conn.execute("""
