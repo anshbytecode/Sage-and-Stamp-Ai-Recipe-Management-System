@@ -30,7 +30,12 @@ app = Flask(__name__)
 app.secret_key = "sage-stamp-advanced-intelligence-key"
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "data", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirname(UPLOAD_FOLDER) or ".", os.W_OK)):
+    UPLOAD_FOLDER = "/tmp/uploads"
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except Exception:
+    pass
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 

@@ -23,7 +23,25 @@ except ImportError:
 
 # Storage directory for uploaded and sample cookbooks
 COOKBOOK_DIR = os.path.join(os.path.dirname(__file__), "data", "cookbooks")
-os.makedirs(COOKBOOK_DIR, exist_ok=True)
+if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirname(COOKBOOK_DIR) or ".", os.W_OK)):
+    TMP_COOKBOOK = "/tmp/cookbooks"
+    try:
+        os.makedirs(TMP_COOKBOOK, exist_ok=True)
+        if os.path.exists(COOKBOOK_DIR):
+            import shutil
+            for fn in os.listdir(COOKBOOK_DIR):
+                src = os.path.join(COOKBOOK_DIR, fn)
+                dst = os.path.join(TMP_COOKBOOK, fn)
+                if not os.path.exists(dst):
+                    shutil.copy2(src, dst)
+    except Exception:
+        pass
+    COOKBOOK_DIR = TMP_COOKBOOK
+else:
+    try:
+        os.makedirs(COOKBOOK_DIR, exist_ok=True)
+    except Exception:
+        pass
 
 
 class VectorStore:
@@ -226,8 +244,11 @@ class RAGCookbookEngine:
             Chapter 5: Fermentation Principles for Crisp Masala Dosa
             The secret to a crisp yet pliable dosa is the exact 3:1 ratio of parboiled idli rice to whole skinned urad dal, fortified with a tablespoon of methi (fenugreek) seeds and chana dal. Methi seeds harbor wild lactobacillus and natural yeasts that produce carbon dioxide, giving the batter airy lightness. Ferment for 10-14 hours at 28°C to 32°C. Spread paper-thin on a seasoned cast-iron tawa, dabbing with clarified ghee, until golden lattice crisps appear.
             """
-            with open(cookbook_1_path, "w", encoding="utf-8") as f:
-                f.write(content_1.strip())
+            try:
+                with open(cookbook_1_path, "w", encoding="utf-8") as f:
+                    f.write(content_1.strip())
+            except Exception:
+                pass
 
         cookbook_2_name = "Ayurvedic Food Synergy & Modern Nutrition.txt"
         cookbook_2_path = os.path.join(COOKBOOK_DIR, cookbook_2_name)
@@ -242,8 +263,11 @@ class RAGCookbookEngine:
             Section 3: Legume Digestion & Flatulence Prevention
             Lentils, chickpeas, and beans are rich in prebiotic fiber and plant protein, but contain complex oligosaccharides like raffinose that humans lack enzymes to digest. In the colon, bacteria ferment these into gas. To completely eliminate bloating: soak legumes with a pinch of baking soda or salt, discard soaking water completely, boil with fresh water, and temper with asafoetida (hing), cumin, and fresh ginger.
             """
-            with open(cookbook_2_path, "w", encoding="utf-8") as f:
-                f.write(content_2.strip())
+            try:
+                with open(cookbook_2_path, "w", encoding="utf-8") as f:
+                    f.write(content_2.strip())
+            except Exception:
+                pass
 
         # Ingest both books into the vector store
         self.ingest_document(cookbook_1_path, "The Heritage Indian Culinary Compendium")

@@ -105,8 +105,17 @@ def init_db():
         )
     """)
     conn.commit()
+    # If database is fresh or empty in /tmp serverless environment, seed recipes
+    cur = conn.execute("SELECT COUNT(*) as c FROM recipes")
+    count = cur.fetchone()["c"]
     conn.close()
     seed_default_user()
+    if count == 0:
+        try:
+            import seed_data
+            seed_data.seed_all()
+        except Exception:
+            pass
 
 
 def seed_default_user():

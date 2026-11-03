@@ -50,3 +50,4 @@ app.debug = False
 # Top-level WSGI entrypoints detected by Vercel
 handler = app
 application = app
+
