@@ -12,6 +12,7 @@ import os
 import re
 import json
 import numpy as np
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -23,6 +24,7 @@ except ImportError:
 
 # Storage directory for uploaded and sample cookbooks
 COOKBOOK_DIR = os.path.join(os.path.dirname(__file__), "data", "cookbooks")
+
 if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirname(COOKBOOK_DIR) or ".", os.W_OK)):
     TMP_COOKBOOK = "/tmp/cookbooks"
     try:
