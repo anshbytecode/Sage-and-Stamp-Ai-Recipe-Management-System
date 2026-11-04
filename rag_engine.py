@@ -32,6 +32,7 @@ if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirnam
         if os.path.exists(COOKBOOK_DIR):
             import shutil
             for fn in os.listdir(COOKBOOK_DIR):
+                
                 src = os.path.join(COOKBOOK_DIR, fn)
                 dst = os.path.join(TMP_COOKBOOK, fn)
                 if not os.path.exists(dst):
@@ -42,6 +43,7 @@ if os.environ.get("VERCEL") or (os.name != "nt" and not os.access(os.path.dirnam
 else:
     try:
         os.makedirs(COOKBOOK_DIR, exist_ok=True)
+        
     except Exception:
         pass
 
@@ -50,6 +52,7 @@ class VectorStore:
     """
     Vector Database index for document chunks.
     Uses TF-IDF semantic embeddings with cosine similarity.
+    
     Provides identical semantics to FAISS (FlatIP / cosine similarity).
     """
     def __init__(self):
