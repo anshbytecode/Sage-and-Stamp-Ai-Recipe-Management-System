@@ -26,6 +26,6 @@ It uses **Machine Learning (TF-IDF, Naive Bayes, and K-Means clustering)** to cl
 - Scikit-learn 🤖
 - Pandas 📊
 - NumPy 🔢
-- HTML, CSS, JavaScript 🎨
+- HTML, CSS, JavaScript 
 
 https://sage-and-stamp-ai-recipe-management.vercel.app/
