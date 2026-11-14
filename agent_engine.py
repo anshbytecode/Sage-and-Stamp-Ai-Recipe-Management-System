@@ -51,8 +51,10 @@ MCP_TOOLS_SPEC = [
             
             "properties": {
                 "amount": {"type": "number"},
+                
                 "from_unit": {"type": "string"},
                 "to_unit": {"type": "string"}
+                
             },
             "required": ["amount", "from_unit", "to_unit"]
         }
@@ -64,8 +66,10 @@ def execute_mcp_tool(tool_name: str, arguments: dict):
     """Simulates live MCP tool call execution with structured JSON payload."""
     if tool_name == "mcp_nutrition_calculator":
         dish = arguments.get("dish_name", "Dish")
+        
         ings = arguments.get("ingredients", [])
         base_cals = 350
+        
         if any("paneer" in str(x).lower() for x in ings):
             base_cals = 480
         elif any("chicken" in str(x).lower() for x in ings):
