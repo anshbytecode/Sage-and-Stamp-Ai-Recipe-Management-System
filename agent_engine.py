@@ -13,12 +13,10 @@ import json
 import random
 from datetime import datetime
 import database as db
+
 from ml_engine import engine
 
 
-# ==============================================================================
-# MCP (Model Context Protocol) Tools
-# ==============================================================================
 MCP_TOOLS_SPEC = [
     {
         "name": "mcp_nutrition_calculator",
@@ -45,10 +43,12 @@ MCP_TOOLS_SPEC = [
         }
     },
     {
+        
         "name": "mcp_unit_converter",
         "description": "Converts culinary measurements (grams, cups, tablespoons, milliliters).",
         "input_schema": {
             "type": "object",
+            
             "properties": {
                 "amount": {"type": "number"},
                 "from_unit": {"type": "string"},
