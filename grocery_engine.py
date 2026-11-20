@@ -71,11 +71,13 @@ class GroceryAssistant:
             return "50g salted butter"
         if "cream" in ing:
             return "100ml fresh cream"
+            
         if "garlic" in ing:
             return "1 whole bulb"
         if "ginger" in ing:
             return "2-inch fresh root"
         if "coriander" in ing or "mint" in ing:
+            
             return "1 fresh bunch"
         if "oil" in ing:
             return "1 bottle cooking oil"
