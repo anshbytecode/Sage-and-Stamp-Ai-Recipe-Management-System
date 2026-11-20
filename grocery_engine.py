@@ -8,6 +8,7 @@ Features:
 - Formats exportable shopping lists (Markdown, text, checklist)
 """
 import re
+
 import database as db
 
 
@@ -33,6 +34,7 @@ AISLE_MAPPINGS = {
     ],
     "Oils, Sauces & Pantry Staples": [
         "oil", "olive oil", "mustard oil", "sesame oil", "sugar", "salt",
+        
         "soy sauce", "tamarind", "vinegar", "tahini", "cashews", "peanuts",
         "coconut milk", "tomato puree", "salsa", "breadcrumbs"
     ]
@@ -42,6 +44,7 @@ AISLE_MAPPINGS = {
 class GroceryAssistant:
     def __init__(self):
         pass
+        
 
     def get_aisle_for_ingredient(self, ingredient_name: str):
         ing_lower = ingredient_name.lower()
